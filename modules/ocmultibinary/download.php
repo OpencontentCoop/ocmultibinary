@@ -16,6 +16,7 @@ if ( isset(  $Params['Version'] ) && is_numeric( $Params['Version'] ) )
 else
      $version = $currentVersion;
 
+/** @var eZContentObjectAttribute $contentObjectAttribute */
 $contentObjectAttribute = eZContentObjectAttribute::fetch( $contentObjectAttributeID, $version, true );
 if ( !is_object( $contentObjectAttribute ) )
 {
@@ -60,6 +61,7 @@ if ( !$canAccess )
 // we should check permission versionRead for the $version.
 if ( $version != $currentVersion )
 {
+    /** @var eZContentObjectVersion $versionObj */
     $versionObj = eZContentObjectVersion::fetchVersion( $version, $contentObjectID );
     if ( is_object( $versionObj ) and !$versionObj->canVersionRead() )
         return $Module->handleError( eZError::KERNEL_NOT_AVAILABLE, 'kernel' );

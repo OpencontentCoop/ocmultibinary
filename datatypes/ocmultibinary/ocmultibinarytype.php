@@ -582,11 +582,12 @@ class OCMultiBinaryType extends eZDataType
 
         if ($binaryFile instanceof eZMultiBinaryFile) {
             $db = eZDB::instance();
-            $db->query('UPDATE ezbinaryfile
+            $filename = eZDB::instance()->escapeString($filename);
+            $db->query("UPDATE ezbinaryfile
                          SET download_count = ( download_count+1 )
-                         WHERE contentobject_attribute_id = ' . $contentObjectAttributeID . '
-                         AND version= ' . $version . ' 
-                         AND filename= "' . eZDB::instance()->escapeString($filename) . '"');
+                         WHERE contentobject_attribute_id = '{$contentObjectAttributeID}'
+                         AND version = '{$version}'
+                         AND filename = '{$filename}'");
 
             return true;
         }
