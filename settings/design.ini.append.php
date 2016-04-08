@@ -2,6 +2,6 @@
 
 
 [ExtensionSettings]
-DesignExtensions[]=xrowmultibinary
+DesignExtensions[]=ocmultibinary
 
 */ ?>

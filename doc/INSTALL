@@ -1,9 +1,0 @@
-﻿How to use xrowmultibinary:
-
-1. Add the extension. Activate it in site.ini. You need the ezjscore extension.
-
-2. Execute the sql file extension/xrowbinary/sql/mysql/xrowmultibinary.sql.
-
-3. Add this datatype to your favorite class.
-
-4. Make sure that the user, who will work with this datatype have policy to ezjscore call

@@ -1,13 +1,13 @@
 <?php /* #?ini charset="utf-8"?
 
 [SSLZoneSettings] 
-ModuleViewAccessMode[xrowmultibinary/*]=keep
+ModuleViewAccessMode[ocmultibinary/*]=keep
 
 [RoleSettings]
-PolicyOmitList[]=xrowmultibinary/upload
-PolicyOmitList[]=xrowmultibinary/download
+PolicyOmitList[]=ocmultibinary/upload
+PolicyOmitList[]=ocmultibinary/download
 
 [SiteAccessSettings]
-AnonymousAccessList[]=xrowmultibinary/upload
-AnonymousAccessList[]=xrowmultibinary/download
+AnonymousAccessList[]=ocmultibinary/upload
+AnonymousAccessList[]=ocmultibinary/download
 */ ?>

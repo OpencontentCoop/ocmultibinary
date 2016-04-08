@@ -1,19 +1,14 @@
 <?php
-/**
- * File containing the XrowmultibinaryInfo class.
- *
- * @copyright Copyright (C) 2010 xrow. All rights reserved.
- * @license http://www.gnu.org/licenses/gpl.txt GPL License
- */
-class XrowmultibinaryInfo
+
+class OCMultiBinaryInfo
 {
     function info()
     {
         return array(
-            'Name' => "eZ Publish xrowmultibinary extension",
+            'Name' => "eZ Publish ocmultibinary extension",
             'Version' => "1.0",
-            'Copyright' => "Copyright (C) 2010 xrow GmbH",
-            'Author' => "xrow GmbH",
+            'Copyright' => "Copyright (C) 2010 OpenContent",
+            'Author' => "OpenContent",
             'License' => "GPL License" );
     }
 }

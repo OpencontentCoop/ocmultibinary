@@ -9,7 +9,7 @@
     </message>
 </context>
 <context>
-    <name>extension/xrowmultibinary</name>
+    <name>extension/ocmultibinary</name>
     <message>
         <source>Select files</source>
         <translation>Dateien auswählen</translation>
