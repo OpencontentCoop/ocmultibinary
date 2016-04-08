@@ -100,7 +100,7 @@ class OCMultiBinaryPassthroughHandler extends eZBinaryFileHandler
     {
         $ini = eZINI::instance( 'file.ini' );
 
-        $mimeTypes = $ini->variable( 'PassThroughSettings', 'ContentDisposition', array() );
+        $mimeTypes = (array)$ini->variable( 'PassThroughSettings', 'ContentDisposition' );
         if ( isset( $mimeTypes[$mimeType] ) )
         {
             return $mimeTypes[$mimeType];
