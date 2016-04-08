@@ -1,0 +1,92 @@
+Index: javascript/plupload.js
+===================================================================
+--- javascript/plupload.js	(revision 1)
++++ javascript/plupload.js	(working copy)
+@@ -12,7 +12,7 @@
+ /*global window:false, escape:false */
+ 
+ (function() {
+-	var count = 0, runtimes = [], i18n = {}, mimes = {},
++	var count = 0, runtimes = [], i18n = {}, mimes = {}, lang = 'en',
+ 		xmlEncodeChars = {'<' : 'lt', '>' : 'gt', '&' : 'amp', '"' : 'quot', '\'' : '#39'},
+ 		xmlEncodeRegExp = /[<>&\"\']/g, undef;
+ 
+@@ -504,8 +504,11 @@
+ 		 * @param {Object} pack Language pack items to add.
+ 		 * @return {Object} Extended language pack object.
+ 		 */
+-		addI18n : function(pack) {
+-			return plupload.extend(i18n, pack);
++		addI18n : function( i18n_array ) {
++			plupload.each(i18n_array, function(value, key) {
++				i18n[key] = value;
++				lang = key;
++			});
+ 		},
+ 
+ 		/**
+@@ -514,8 +517,13 @@
+ 		 * @param {String} str String to look for.
+ 		 * @reutrn {String} Translated string or the input string if it wasn't found.
+ 		 */
+-		translate : function(str) {
+-			return i18n[str] || str;
++		translate : function(s) {
++			if (!s)
++				return '';
++
++			return i18n[lang][s] || s.replace(/{\#([^}]+)\}/g, function(a, b) {
++				return i18n[lang][b] || '{#' + b + '}';
++			});
+ 		},
+ 
+ 		/**
+@@ -760,7 +768,48 @@
+ 
+ 							continue;
+ 						}
++						
++						// check if the file was already there
++						if ( settings.no_files_with_same_name )
++						{
++							var do_not_add_file = false;
++							$.each( files, function( i, existingfile ) {
++								if ( existingfile.name == file.name )
++								{
++									do_not_add_file = true;
++									alert( plupload.translate( 'file_exists' ) );
++								}
++							});
++							if ( do_not_add_file )
++							{
++								continue;
++							}
++						}
+ 
++						// check if there is a max number of files for upload
++						var check_max_number_of_files = 'disabled', max_number_of_files = 0;
++						if ( settings.max_number_of_files )
++						{
++							check_max_number_of_files = 'enabled';
++							max_number_of_files = settings.max_number_of_files;
++						}
++						if ( check_max_number_of_files == 'enabled' && count >= max_number_of_files || files.length >= max_number_of_files )
++						{
++							var translate_string = plupload.translate( 'allowed_to_upload_x_files' );
++							var replace_string = translate_string.replace('%s', max_number_of_files);
++							error = replace_string;
++							if ( max_number_of_files == 1 )
++							{
++								error = plupload.translate( 'allowed_to_upload_one_file' );
++							}
++							if ( alert_was_displayed == 0 )
++							{
++								alert( error );
++								alert_was_displayed = 1;
++							}
++							continue;
++						}
++
+ 						// Add valid file to list
+ 						files.push(file);
+ 						count++;

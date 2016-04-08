@@ -1,0 +1,1 @@
+ALTER TABLE `ezbinaryfile` DROP PRIMARY KEY, ADD PRIMARY KEY  USING BTREE(`contentobject_attribute_id`, `version`, `filename`);
