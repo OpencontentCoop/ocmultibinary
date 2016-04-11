@@ -327,15 +327,17 @@ class OCMultiBinaryType extends eZDataType
         $filePath,
         &$result
     ) {
-        $result = array( 'errors' => array(),
-                         'require_storage' => false );
+        $result = array(
+            'errors' => array(),
+            'require_storage' => false
+        );
 
         $binaryFiles = $this->getBinaryFiles(
             $objectAttribute,
             $objectVersion
         );
 
-        $attributeID = $objectAttribute->attribute( 'id' );
+        $attributeID = $objectAttribute->attribute('id');
 
         $binary = eZMultiBinaryFile::fetch($attributeID, $objectVersion);
         if ($binary === null || empty( $binary )) {
@@ -344,44 +346,51 @@ class OCMultiBinaryType extends eZDataType
             $binary = $binary[0];
         }
 
-        $fileName = basename( $filePath );
-        $mimeData = eZMimeType::findByFileContents( $filePath );
+        $fileName = basename($filePath);
+        $mimeData = eZMimeType::findByFileContents($filePath);
         $storageDir = eZSys::storageDirectory();
-        list( $group, $type ) = explode( '/', $mimeData['name'] );
-        unset($type);
+        list( $group, $type ) = explode('/', $mimeData['name']);
+        unset( $type );
         $destination = $storageDir . '/original/' . $group;
 
-        if ( !file_exists( $destination ) )
-        {
-            if ( !eZDir::mkdir( $destination, false, true ) )
-            {
+        if (!file_exists($destination)) {
+            if (!eZDir::mkdir($destination, false, true)) {
+                $result['errors'][] = "Can not create local file";
+
                 return false;
             }
         }
 
+        if (!file_exists($filePath)) {
+            $result['errors'][] = "$filePath not found";
+
+            return false;
+        }
+
         // create dest filename in the same manner as eZHTTPFile::store()
         // grab file's suffix
-        $fileSuffix = eZFile::suffix( $fileName );
+        $fileSuffix = eZFile::suffix($fileName);
         // prepend dot
-        if( $fileSuffix )
+        if ($fileSuffix) {
             $fileSuffix = '.' . $fileSuffix;
+        }
         // grab filename without suffix
-        $fileBaseName = basename( $fileName, $fileSuffix );
+        $fileBaseName = basename($fileName, $fileSuffix);
         // create dest filename
-        $destFileName = md5( $fileBaseName . microtime() . mt_rand() ) . $fileSuffix;
+        $destFileName = md5($fileBaseName . microtime() . mt_rand()) . $fileSuffix;
         $destination = $destination . '/' . $destFileName;
 
-        copy( $filePath, $destination );
+        copy($filePath, $destination);
 
         $fileHandler = eZClusterFileHandler::instance();
-        $fileHandler->fileStore( $destination, 'binaryfile', true, $mimeData['name'] );
+        $fileHandler->fileStore($destination, 'binaryfile', true, $mimeData['name']);
 
 
-        $binary->setAttribute( "contentobject_attribute_id", $attributeID );
-        $binary->setAttribute( "version", $objectVersion );
-        $binary->setAttribute( "filename", $destFileName );
-        $binary->setAttribute( "original_filename", $fileName );
-        $binary->setAttribute( "mime_type", $mimeData['name'] );
+        $binary->setAttribute("contentobject_attribute_id", $attributeID);
+        $binary->setAttribute("version", $objectVersion);
+        $binary->setAttribute("filename", $destFileName);
+        $binary->setAttribute("original_filename", $fileName);
+        $binary->setAttribute("mime_type", $mimeData['name']);
 
         $binary->store();
 
@@ -422,6 +431,7 @@ class OCMultiBinaryType extends eZDataType
 
         $objectAttribute->setAttribute('data_text', serialize($files));
         $objectAttribute->store();
+
         return true;
     }
 
@@ -769,6 +779,7 @@ class OCMultiBinaryType extends eZDataType
         $binaryFiles = $this->getBinaryFiles($objectAttribute, $version);
         // sort the files
         $sortConditions = unserialize($objectAttribute->attribute('data_text'));
+
         /** @var eZMultiBinaryFile [] $sortedBinaryFiles */
         $sortedBinaryFiles = array();
         if (is_array($sortConditions) && count($sortConditions) > 0) {
@@ -782,6 +793,8 @@ class OCMultiBinaryType extends eZDataType
                     }
                 }
             }
+        } else {
+            $sortedBinaryFiles = $binaryFiles;
         }
 
         if (is_array($sortedBinaryFiles) && count($sortedBinaryFiles) > 0) {
@@ -915,6 +928,7 @@ class OCMultiBinaryType extends eZDataType
     /**
      * @param eZContentObjectAttribute $objectAttribute
      * @param string $string
+     *
      * @return bool
      */
     function fromString($objectAttribute, $string)

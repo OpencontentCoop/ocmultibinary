@@ -1,7 +1,6 @@
 {default attribute_base=ContentObjectAttribute}
     <div id="uploader_{$attribute_base}_data_multibinaryfilename_{$attribute.id}">
 
-        <input type="hidden" name="is_plup_{$attribute.id}" value="0"/>
         {def $file_count = 0}
 
         {if $attribute.has_content}

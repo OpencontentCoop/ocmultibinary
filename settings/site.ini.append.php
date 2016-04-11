@@ -10,4 +10,8 @@ PolicyOmitList[]=ocmultibinary/download
 [SiteAccessSettings]
 AnonymousAccessList[]=ocmultibinary/upload
 AnonymousAccessList[]=ocmultibinary/download
+
+[RegionalSettings]
+TranslationExtensions[]=ocmultibinary
+
 */ ?>
