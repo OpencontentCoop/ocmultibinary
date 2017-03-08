@@ -82,8 +82,8 @@ class OCMultiBinaryType extends eZDataType
             foreach ($binaryFiles as $binaryFile) {
                 if ($binaryFile instanceof eZMultiBinaryFile) {
                     $mimeType = $binaryFile->attribute("mime_type");
-                    list( $prefix, $suffix ) = preg_split('[/]', $mimeType);
-                    unset( $suffix );
+                    list($prefix, $suffix) = preg_split('[/]', $mimeType);
+                    unset($suffix);
                     $originalDirectory = $storageDirectory . '/original/' . $prefix;
                     $fileName = $binaryFile->attribute("filename");
 
@@ -133,8 +133,8 @@ class OCMultiBinaryType extends eZDataType
             foreach ($binaryFiles as $binaryFile) {
                 if ($binaryFile instanceof eZMultiBinaryFile) {
                     $mimeType = $binaryFile->attribute("mime_type");
-                    list( $prefix, $suffix ) = explode('/', $mimeType);
-                    unset( $suffix );
+                    list($prefix, $suffix) = explode('/', $mimeType);
+                    unset($suffix);
                     $originalDirectory = $storageDirectory . '/original/' . $prefix;
                     $fileName = $binaryFile->attribute("filename");
                     $binaryObjectsWithSameFileName = eZMultiBinaryFile::fetchByFileName($fileName);
@@ -152,8 +152,8 @@ class OCMultiBinaryType extends eZDataType
                 if ($binaryFile instanceof eZMultiBinaryFile) {
                     // delete filedata from dfs
                     $mimeType = $binaryFile->attribute("mime_type");
-                    list( $prefix, $suffix ) = explode('/', $mimeType);
-                    unset( $suffix );
+                    list($prefix, $suffix) = explode('/', $mimeType);
+                    unset($suffix);
                     $originalDirectory = $storageDirectory . '/original/' . $prefix;
                     $fileName = $binaryFile->attribute("filename");
                     $binaryObjectsWithSameFileName = eZMultiBinaryFile::fetchByFileName($fileName);
@@ -174,7 +174,7 @@ class OCMultiBinaryType extends eZDataType
         $isFileUploadsEnabled = ini_get('file_uploads') != 0;
         if (!$isFileUploadsEnabled) {
             $isFileWarningAdded = $GLOBALS['eZBinaryFileTypeWarningAdded'];
-            if (!isset( $isFileWarningAdded ) or
+            if (!isset($isFileWarningAdded) or
                 !$isFileWarningAdded
             ) {
                 eZAppendWarningItem(array(
@@ -275,8 +275,8 @@ class OCMultiBinaryType extends eZDataType
                                 $binaryFile->attribute('version'));
                             // delete the file from storage
                             $mimeType = $binaryFile->attribute('mime_type');
-                            list( $prefix, $suffix ) = explode('/', $mimeType);
-                            unset( $suffix );
+                            list($prefix, $suffix) = explode('/', $mimeType);
+                            unset($suffix);
                             $originalDirectory = $storageDirectory . '/original/' . $prefix;
                             $fileName = $binaryFile->attribute('filename');
                             $filePath = $originalDirectory . "/" . $fileName;
@@ -326,7 +326,8 @@ class OCMultiBinaryType extends eZDataType
         $objectAttribute,
         $filePath,
         &$result
-    ) {
+    )
+    {
         $result = array(
             'errors' => array(),
             'require_storage' => false
@@ -340,7 +341,7 @@ class OCMultiBinaryType extends eZDataType
         $attributeID = $objectAttribute->attribute('id');
 
         $binary = eZMultiBinaryFile::fetch($attributeID, $objectVersion);
-        if ($binary === null || empty( $binary )) {
+        if ($binary === null || empty($binary)) {
             $binary = eZMultiBinaryFile::create($attributeID, $objectVersion);
         } elseif (is_array($binary)) {
             $binary = $binary[0];
@@ -349,8 +350,8 @@ class OCMultiBinaryType extends eZDataType
         $fileName = basename($filePath);
         $mimeData = eZMimeType::findByFileContents($filePath);
         $storageDir = eZSys::storageDirectory();
-        list( $group, $type ) = explode('/', $mimeData['name']);
-        unset( $type );
+        list($group, $type) = explode('/', $mimeData['name']);
+        unset($type);
         $destination = $storageDir . '/original/' . $group;
 
         if (!file_exists($destination)) {
@@ -412,8 +413,8 @@ class OCMultiBinaryType extends eZDataType
 
                     // delete the file from storage
                     $mimeType = $binaryFile->attribute('mime_type');
-                    list( $prefix, $suffix ) = explode('/', $mimeType);
-                    unset( $suffix );
+                    list($prefix, $suffix) = explode('/', $mimeType);
+                    unset($suffix);
 
                     $originalDirectory = $storageDirectory . '/original/' . $prefix;
                     $fileName = $binaryFile->attribute('filename');
@@ -454,7 +455,8 @@ class OCMultiBinaryType extends eZDataType
         $httpFile,
         $mimeData,
         &$result
-    ) {
+    )
+    {
         $result = array(
             'errors' => array(),
             'require_storage' => false
@@ -468,7 +470,7 @@ class OCMultiBinaryType extends eZDataType
         $attributeID = $objectAttribute->attribute('id');
 
         $binary = eZMultiBinaryFile::fetch($attributeID, $objectVersion);
-        if ($binary === null || empty( $binary )) {
+        if ($binary === null || empty($binary)) {
             $binary = eZMultiBinaryFile::create($attributeID, $objectVersion);
         } elseif (is_array($binary)) {
             $binary = $binary[0];
@@ -519,8 +521,8 @@ class OCMultiBinaryType extends eZDataType
 
                     // delete the file from storage
                     $mimeType = $binaryFile->attribute('mime_type');
-                    list( $prefix, $suffix ) = explode('/', $mimeType);
-                    unset( $suffix );
+                    list($prefix, $suffix) = explode('/', $mimeType);
+                    unset($suffix);
 
                     $originalDirectory = $storageDirectory . '/original/' . $prefix;
                     $fileName = $binaryFile->attribute('filename');
@@ -577,7 +579,8 @@ class OCMultiBinaryType extends eZDataType
     static function handleSingleDownload(
         $objectAttribute,
         $filename
-    ) {
+    )
+    {
         $binaryFile = eZPersistentObject::fetchObject(eZMultiBinaryFile::definition(),
             null,
             array(
@@ -846,8 +849,8 @@ class OCMultiBinaryType extends eZDataType
             }
 
             $mimeType = $fileNode->getAttribute('mime-type');
-            list( $mimeTypeCategory, $mimeTypeName ) = explode('/', $mimeType);
-            unset( $mimeTypeName );
+            list($mimeTypeCategory, $mimeTypeName) = explode('/', $mimeType);
+            unset($mimeTypeName);
             $destinationPath = eZSys::storageDirectory() . '/original/' . $mimeTypeCategory . '/';
             if (!file_exists($destinationPath)) {
                 $oldumask = umask(0);
@@ -922,7 +925,7 @@ class OCMultiBinaryType extends eZDataType
             $stringArray[] = $file->attribute('original_filename');
         }
 
-        return implode(', ', $stringArray);
+        return implode('|', $stringArray);
     }
 
     /**
@@ -940,16 +943,31 @@ class OCMultiBinaryType extends eZDataType
         $version = $objectAttribute->attribute('version');
         $this->deleteStoredObjectAttribute($objectAttribute, $version);
 
-        $result = array();
+        $filePaths = explode('|', $string);
 
-        return $this->insertRegularFile(
-            $objectAttribute->attribute('object'),
-            $objectAttribute->attribute('version'),
-            $objectAttribute->attribute('language_code'),
-            $objectAttribute,
-            $string,
-            $result
-        );
+        $errors = array();
+        $insertFileCount = 0;
+        foreach ($filePaths as $filePath) {
+            $result = array();
+            if ($this->insertRegularFile(
+                $objectAttribute->attribute('object'),
+                $objectAttribute->attribute('version'),
+                $objectAttribute->attribute('language_code'),
+                $objectAttribute,
+                $string,
+                $result)
+            ) {
+                $insertFileCount++;
+            }
+            if (count($result['errors']) > 0) {
+                $errors[$filePath] = $result['errors'];
+            }
+        }
+
+        if (count($errors) > 0) {
+            eZDebug::writeError(var_export($errors, 1), __METHOD__);
+        }
+        return count($filePaths) == $insertFileCount;
     }
 }
 
