@@ -103,4 +103,18 @@ class OCMultiBinaryOpendataConverter extends File
             )
         );
     }
+
+    public function toCSVString($content, $params = null)
+    {
+        $data = array();
+        if (is_array($content)) {
+            foreach($content as $item){
+                $data[] = $item['url'];
+            }
+
+        }
+
+        return implode('|', $data);
+    }
+
 }
