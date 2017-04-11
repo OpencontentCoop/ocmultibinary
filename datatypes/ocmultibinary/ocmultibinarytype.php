@@ -954,7 +954,7 @@ class OCMultiBinaryType extends eZDataType
                 $objectAttribute->attribute('version'),
                 $objectAttribute->attribute('language_code'),
                 $objectAttribute,
-                $string,
+                $filePath,
                 $result)
             ) {
                 $insertFileCount++;
