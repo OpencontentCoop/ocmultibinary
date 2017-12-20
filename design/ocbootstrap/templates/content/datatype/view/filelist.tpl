@@ -1,11 +1,11 @@
 <table class="list" cellpadding="0" cellspacing="0">
     <tr>
         <th>
-            File allegati:
+            {'Attached files:'|i18n( 'ocmultibinary' )}
             {if $attribute.has_content}
                 <button class="btn btn-danger btn-xs pull-right" type="submit"
-                        name="CustomActionButton[{$attribute.id}_delete_binary]" title="Rimuovi tutti i file">
-                    <i class="fa fa-trash"></i> Elimina tutti i file
+                        name="CustomActionButton[{$attribute.id}_delete_binary]" title="{'Delete all files'|i18n( 'ocmultibinary' )}">
+                    <i class="fa fa-trash"></i> {'Delete all files'|i18n( 'ocmultibinary' )}
                 </button>
             {/if}
         </th>
@@ -16,7 +16,7 @@
                 <td>
                     <button class="ocmultibutton btn btn-danger btn-xs" type="submit"
                             name="CustomActionButton[{$attribute.id}_delete_multibinary][{$file.filename}]"
-                            title="Rimuovi questo file">
+                            title="{'Remove this file'|i18n( 'ocmultibinary' )}">
                         <i class="fa fa-trash"></i>
                     </button>
                     {$file.original_filename|wash( xhtml )}&nbsp;({$file.filesize|si( byte )})
@@ -26,7 +26,7 @@
     {else}
         <tr>
             <td>
-                <p>Nessun file caricato.</p>
+                <p>{'No files uploaded'|i18n( 'ocmultibinary' )}</p>
             </td>
         </tr>
     {/if}

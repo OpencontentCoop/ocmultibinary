@@ -53,5 +53,25 @@
             <source>You are allowed to upload only %s files.</source>
             <translation>Sie dürfen nur %s Dateien hochladen.</translation>
         </message>
+        <message>
+            <source>Attached files:</source>
+            <translation>File allegati:</translation>
+        </message>
+        <message>
+            <source>No files uploaded</source>
+            <translation>Nessun file caricato</translation>
+        </message>
+        <message>
+            <source>Delete all files</source>
+            <translation>Elimina tutti i file</translation>
+        </message>
+        <message>
+            <source>Remove this file</source>
+            <translation>Rimuovi questo file</translation>
+        </message>
+        <message>
+            <source>Add file</source>
+            <translation>Aggiungi file</translation>
+        </message>
     </context>
 </TS>
