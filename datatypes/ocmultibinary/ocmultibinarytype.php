@@ -13,7 +13,7 @@ class OCMultiBinaryType extends eZDataType
 
     function __construct()
     {
-        $this->eZDataType(self::DATA_TYPE_STRING,
+        parent::__construct(self::DATA_TYPE_STRING,
             ezpI18n::tr('kernel/classes/datatypes', 'Multiple Files', 'Datatype name'),
             array('serialize_supported' => true));
     }

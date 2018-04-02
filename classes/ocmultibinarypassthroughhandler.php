@@ -4,9 +4,9 @@ class OCMultiBinaryPassthroughHandler extends eZBinaryFileHandler
 {
     const HANDLER_ID = 'ezfilepassthrough';
 
-    function OCMultiBinaryPassthroughHandler()
+    function __construct()
     {
-        $this->eZBinaryFileHandler( self::HANDLER_ID, "PHP passthrough", eZBinaryFileHandler::HANDLE_DOWNLOAD );
+        parent::__construct( self::HANDLER_ID, "PHP passthrough", eZBinaryFileHandler::HANDLE_DOWNLOAD );
     }
 
     function handleFileDownload( $contentObject, $contentObjectAttribute, $type,
