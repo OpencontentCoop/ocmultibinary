@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="de_DE" sourcelanguage="en">
+<TS version="2.0" language="it_IT" sourcelanguage="en">
     <context>
         <name>kernel/classes/datatypes</name>
         <message>
@@ -12,46 +12,46 @@
         <name>design/standard/class/datatype</name>
         <message>
             <source>Max number of files for the upload</source>
-            <translation>Maximale Anzahl an Dateien für den Upload</translation>
+            <translation>Numero massimo di file permesso</translation>
         </message>
     </context>
     <context>
-        <name>extension/ocmultibinary</name>
+        <name>ocmultibinary</name>
         <message>
             <source>Select files</source>
-            <translation>Dateien auswählen</translation>
+            <translation>Seleziona file</translation>
         </message>
         <message>
             <source>Filename</source>
-            <translation>Dateiname</translation>
+            <translation>Nome del file</translation>
         </message>
         <message>
             <source>Status</source>
-            <translation>Status</translation>
+            <translation>Stato</translation>
         </message>
         <message>
             <source>Size</source>
-            <translation>Größe</translation>
+            <translation>Dimensione</translation>
         </message>
         <message>
             <source>Drag file here.</source>
-            <translation>Datei hierher ziehen.</translation>
+            <translation>Trascina qui</translation>
         </message>
         <message>
             <source>Drag files here.</source>
-            <translation>Dateien hierher ziehen.</translation>
+            <translation>Trascina qui</translation>
         </message>
         <message>
             <source>A file with this name is already exists.</source>
-            <translation>Eine Datei mit diesem Namen existiert bereits.</translation>
+            <translation>Esiste già un file con questo nome</translation>
         </message>
         <message>
             <source>You are allowed to upload only one file.</source>
-            <translation>Sie dürfen nur eine Datei hochladen.</translation>
+            <translation>Puoi caricare un solo file</translation>
         </message>
         <message>
             <source>You are allowed to upload only %s files.</source>
-            <translation>Sie dürfen nur %s Dateien hochladen.</translation>
+            <translation>Puoi caricare al massimo %s file</translation>
         </message>
         <message>
             <source>Attached files:</source>
