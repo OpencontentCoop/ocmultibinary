@@ -61,7 +61,7 @@ class OCMultiBinaryOpendataConverter extends File
             $values[] = $this->getTemporaryFilePath($item['filename'], $item['url'], $item['file']);
         }
 
-        return implode(',', $values);
+        return implode('|', $values);
     }
 
     public static function validate($identifier, $data, eZContentClassAttribute $attribute)
