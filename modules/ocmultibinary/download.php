@@ -70,6 +70,12 @@ if ( $version != $currentVersion )
 
 $fileinfo = OCMultiBinaryType::storedSingleFileInformation( $contentObjectAttribute, $Params['File'] );
 OCMultiBinaryType::handleSingleDownload( $contentObjectAttribute, $Params['File'] );
+
+ezpEvent::getInstance()->notify(
+    'content/download',
+    array( 'contentObjectID' => $contentObjectID,
+        'contentObjectAttributeID' => $contentObjectAttributeID ) );
+
 $fileHandler = new eZFilePassthroughHandler();
 $result = $fileHandler->handleFileDownload( $contentObject, $contentObjectAttribute, eZBinaryFileHandler::TYPE_FILE, $fileinfo );
 
