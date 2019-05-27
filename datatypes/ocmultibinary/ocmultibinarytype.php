@@ -723,11 +723,16 @@ class OCMultiBinaryType extends eZDataType
     {
         $version = $contentObjectAttribute->attribute('version');
         $binaryFiles = $this->getBinaryFiles($contentObjectAttribute, $version);
+        $useMetadataExtractor = eZINI::instance('ocmultibinary.ini')->variable('SearchSettings', 'UseMetaDataExtractor') == 'enabled';
 
         $metaData = array();
         foreach ($binaryFiles as $file) {
             if ($file instanceof eZMultiBinaryFile) {
-                $metaData[] = $file->attribute('original_filename');
+                if ($useMetadataExtractor){
+                    $metaData[] = $file->metaData();
+                }else {
+                    $metaData[] = $file->attribute('original_filename');
+                }
             }
         }
 

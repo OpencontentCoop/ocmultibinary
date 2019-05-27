@@ -3,4 +3,7 @@
 [Settings]
 Runtimes=gears,flash,silverlight,browserplus
 
+[SearchSettings]
+UseMetaDataExtractor=disabled
+
 */ ?>
