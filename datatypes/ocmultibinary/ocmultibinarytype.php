@@ -444,8 +444,12 @@ class OCMultiBinaryType extends eZDataType
             }
         }
 
-        /*$objectAttribute->setAttribute('data_text', serialize($files));
-        $objectAttribute->store();*/
+        $sortedFiles = (array)unserialize($objectAttribute->attribute('data_text'));
+        $lastKey = array_keys($sortedFiles)[count($sortedFiles)-1];
+        $sortedFiles[$lastKey+1] = $binary->attribute('original_filename');
+
+        $objectAttribute->setAttribute('data_text', serialize($sortedFiles));
+        $objectAttribute->store();
 
         return true;
     }
@@ -552,8 +556,12 @@ class OCMultiBinaryType extends eZDataType
             }
         }
 
-        /*$objectAttribute->setAttribute('data_text', serialize($files));
-        $objectAttribute->store();*/
+        $sortedFiles = (array)unserialize($objectAttribute->attribute('data_text'));
+        $lastKey = array_keys($sortedFiles)[count($sortedFiles)-1];
+        $sortedFiles[$lastKey+1] = $binary->attribute('original_filename');
+
+        $objectAttribute->setAttribute('data_text', serialize($sortedFiles));
+        $objectAttribute->store();
 
         $db->commit();
 
