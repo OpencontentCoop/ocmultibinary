@@ -7,7 +7,7 @@
             <table class="list" cellpadding="0" cellspacing="0">
                 <tr>
                     <th>
-                        File allegati:
+                        {'Attached files:'|i18n( 'extension/ocmultibinary' )}
                         <button class="btn btn-default btn-xs pull-right" type="submit"
                                 name="CustomActionButton[{$attribute.id}_delete_binary]" title="{'Delete all files'|i18n('extension/ocmultibinary')}">
                             {'Delete all files'|i18n('extension/ocmultibinary')}
@@ -35,7 +35,7 @@
                     <td></td>
                     <td>
                         <button class="btn btn-default btn-xs pull-right" type="submit"
-                                name="CustomActionButton[{$attribute.id}_sort_binary]" title="Ordina">
+                                name="CustomActionButton[{$attribute.id}_sort_binary]" title="{"Sort"|i18n("design/standard/shop")}">
                             {"Sort"|i18n("design/standard/shop")}
                         </button>
                     </td>
@@ -59,7 +59,7 @@
                        name="{$attribute_base}_data_multibinaryfilename_{$attribute.id}" type="file"/>
                 <input class="ocmultibutton btn btn-default btn-sm" type="submit"
                        name="CustomActionButton[{$attribute.id}_upload_multibinary]" value="{'Add file'|i18n('extension/ocmultibinary')}"
-                       title="Allega il file"/>
+                       title="{'Add file'|i18n('extension/ocmultibinary')}"/>
             </div>
         {/if}
 
