@@ -445,7 +445,7 @@ class OCMultiBinaryType extends eZDataType
         }
 
         $sortedFiles = (array)unserialize($objectAttribute->attribute('data_text'));
-        $lastKey = array_keys($sortedFiles)[count($sortedFiles)-1];
+        $lastKey = end(array_keys($sortedFiles));
         $sortedFiles[$lastKey+1] = $binary->attribute('original_filename');
 
         $objectAttribute->setAttribute('data_text', serialize($sortedFiles));
@@ -557,7 +557,7 @@ class OCMultiBinaryType extends eZDataType
         }
 
         $sortedFiles = (array)unserialize($objectAttribute->attribute('data_text'));
-        $lastKey = array_keys($sortedFiles)[count($sortedFiles)-1];
+        $lastKey = end(array_keys($sortedFiles));
         $sortedFiles[$lastKey+1] = $binary->attribute('original_filename');
 
         $objectAttribute->setAttribute('data_text', serialize($sortedFiles));
