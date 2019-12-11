@@ -32,7 +32,7 @@
                                         files: JSON.stringify(files)
                                     },
                                     success: function (response) {
-                                        console.log(response)
+                                        //console.log(response)
                                     }
                                 });
 
