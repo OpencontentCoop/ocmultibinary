@@ -9,10 +9,10 @@ class OCMultiBinaryOpendataConverter extends File
     public function get(eZContentObjectAttribute $attribute)
     {
         $content = array(
-            'id' => intval( $attribute->attribute( 'id' ) ),
-            'version' => intval( $attribute->attribute( 'version' ) ),
+            'id' => intval($attribute->attribute('id')),
+            'version' => intval($attribute->attribute('version')),
             'identifier' => $this->classIdentifier . '/' . $this->identifier,
-            'datatype' => $attribute->attribute( 'data_type_string' ),
+            'datatype' => $attribute->attribute('data_type_string'),
             'content' => $attribute->hasContent() ? $attribute->toString() : null
         );
 
@@ -26,11 +26,11 @@ class OCMultiBinaryOpendataConverter extends File
 
 
                 $url = 'ocmultibinary/download/' . $attribute->attribute('contentobject_id')
-                       . '/' . $attribute->attribute('id')
-                       . '/' . $attribute->attribute('version')
-                       . '/' . $file->attribute('filename')
-                       . '/file'
-                       . '/' . $file->attribute('original_filename');
+                    . '/' . $attribute->attribute('id')
+                    . '/' . $attribute->attribute('version')
+                    . '/' . $file->attribute('filename')
+                    . '/file'
+                    . '/' . $file->attribute('original_filename');
                 eZURI::transformURI($url, false, 'full');
 
                 $data[] = array(
@@ -50,11 +50,11 @@ class OCMultiBinaryOpendataConverter extends File
         $values = array();
         foreach ($data as $item) {
 
-            if (!isset( $item['url'] )) {
+            if (!isset($item['url'])) {
                 $item['url'] = null;
             }
 
-            if (!isset( $item['file'] )) {
+            if (!isset($item['file'])) {
                 $item['file'] = null;
             }
 
@@ -70,16 +70,16 @@ class OCMultiBinaryOpendataConverter extends File
             foreach ($data as $item) {
 
 
-                if (!isset( $item['filename'] )) {
+                if (!isset($item['filename'])) {
                     throw new InvalidInputException('Missing filename', $identifier, $item);
                 }
 
-                if (isset( $item['url'] ) && !eZHTTPTool::getDataByURL(trim($item['url']), true)) {
+                if (isset($item['url']) && !eZHTTPTool::getDataByURL(trim($item['url']), true)) {
                     throw new InvalidInputException('Url not responding', $identifier, $item);
                 }
 
-                if (isset( $item['file'] )
-                    && !( base64_encode(base64_decode($item['file'], true)) === $item['file'] )
+                if (isset($item['file'])
+                    && !(base64_encode(base64_decode($item['file'], true)) === $item['file'])
                 ) {
                     throw new InvalidInputException('Invalid base64 encoding', $identifier, $item);
                 }
@@ -108,7 +108,7 @@ class OCMultiBinaryOpendataConverter extends File
     {
         $data = array();
         if (is_array($content)) {
-            foreach($content as $item){
+            foreach ($content as $item) {
                 $data[] = $item['url'];
             }
 

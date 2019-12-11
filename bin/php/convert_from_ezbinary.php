@@ -27,19 +27,19 @@ if ($class instanceof eZContentClass) {
     $attributes = $class->dataMap();
     if (isset($attributes[$options['attribute']])) {
         $attributeClass = $attributes[$options['attribute']];
-        if($attributeClass instanceof eZContentClassAttribute){
-            if ($attributeClass->attribute('data_type_string') == eZBinaryFileType::DATA_TYPE_STRING){
+        if ($attributeClass instanceof eZContentClassAttribute) {
+            if ($attributeClass->attribute('data_type_string') == eZBinaryFileType::DATA_TYPE_STRING) {
                 $attributeObjects = eZContentObjectAttribute::fetchObjectList(
                     eZContentObjectAttribute::definition(),
                     null,
                     array('contentclassattribute_id' => $attributeClass->attribute('id'))
                 );
-    
+
                 $db->begin();
-                $attributeClass->setAttribute('data_type_string',OCMultiBinaryType::DATA_TYPE_STRING);
+                $attributeClass->setAttribute('data_type_string', OCMultiBinaryType::DATA_TYPE_STRING);
                 $attributeClass->store();
-                foreach($attributeObjects as $attributeObject){
-                    $attributeObject->setAttribute('data_type_string',OCMultiBinaryType::DATA_TYPE_STRING);
+                foreach ($attributeObjects as $attributeObject) {
+                    $attributeObject->setAttribute('data_type_string', OCMultiBinaryType::DATA_TYPE_STRING);
                     $attributeObject->store();
                 }
                 $db->commit();

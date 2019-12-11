@@ -6,15 +6,16 @@
         {if $attribute.has_content}
             <table class="list" cellpadding="0" cellspacing="0">
                 <tr>
-                    <th width="90%">
+                    <th>
                         File allegati:
                         <button class="btn btn-default btn-xs pull-right" type="submit"
-                                name="CustomActionButton[{$attribute.id}_delete_binary]" title="Rimuovi tutti i file">
-                            Elimina tutti i file
+                                name="CustomActionButton[{$attribute.id}_delete_binary]" title="{'Delete all files'|i18n('extension/ocmultibinary')}">
+                            {'Delete all files'|i18n('extension/ocmultibinary')}
                         </button>
                     </th>
-                    <th>
-                        Ordinamento (Ascendente)
+                    <th class="tight">
+                        {'Delete all files'|i18n('extension/ocmultibinary')}
+                        {'Sort by'|i18n( 'classlists/list' )} <small>({'Ascending'|i18n( 'design/admin/node/view/full' )})</small>
                     </th>
                 </tr>
                 {foreach $attribute.content as $key => $file}
@@ -22,7 +23,7 @@
                         <td>
                             <button class="ocmultibutton btn btn-link btn-xs" type="submit"
                                     name="CustomActionButton[{$attribute.id}_delete_multibinary][{$file.filename}]"
-                                    title="Rimuovi questo file"><img src="{'trash.png'|ezimage(no)}"/></button>
+                                    title="{'Remove this file'|i18n('extension/ocmultibinary')}"><img src="{'trash.png'|ezimage(no)}"/></button>
                             {$file.original_filename|wash( xhtml )}&nbsp;({$file.filesize|si( byte )})
                         </td>
                         <td>
@@ -35,13 +36,13 @@
                     <td>
                         <button class="btn btn-default btn-xs pull-right" type="submit"
                                 name="CustomActionButton[{$attribute.id}_sort_binary]" title="Ordina">
-                            Ordina
+                            {"Sort"|i18n("design/standard/shop")}
                         </button>
                     </td>
                 </tr>
             </table>
         {else}
-            <p>Nessun file caricato.</p>
+            <p>{'No files uploaded'|i18n('extension/ocmultibinary')}</p>
         {/if}
 
         {if $attribute.has_content}
@@ -57,7 +58,7 @@
                        class="box ezcc-{$attribute.object.content_class.identifier} ezcca-{$attribute.object.content_class.identifier}_{$attribute.contentclass_attribute_identifier}"
                        name="{$attribute_base}_data_multibinaryfilename_{$attribute.id}" type="file"/>
                 <input class="ocmultibutton btn btn-default btn-sm" type="submit"
-                       name="CustomActionButton[{$attribute.id}_upload_multibinary]" value="Allega file"
+                       name="CustomActionButton[{$attribute.id}_upload_multibinary]" value="{'Add file'|i18n('extension/ocmultibinary')}"
                        title="Allega il file"/>
             </div>
         {/if}
