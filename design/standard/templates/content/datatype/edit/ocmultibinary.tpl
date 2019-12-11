@@ -6,15 +6,18 @@
         {if $attribute.has_content}
             <table class="list" cellpadding="0" cellspacing="0">
                 <tr>
-                    <th>
+                    <th width="90%">
                         File allegati:
                         <button class="btn btn-default btn-xs pull-right" type="submit"
                                 name="CustomActionButton[{$attribute.id}_delete_binary]" title="Rimuovi tutti i file">
                             Elimina tutti i file
                         </button>
                     </th>
+                    <th>
+                        Ordinamento (Ascendente)
+                    </th>
                 </tr>
-                {foreach $attribute.content as $file}
+                {foreach $attribute.content as $key => $file}
                     <tr>
                         <td>
                             <button class="ocmultibutton btn btn-link btn-xs" type="submit"
@@ -22,8 +25,20 @@
                                     title="Rimuovi questo file"><img src="{'trash.png'|ezimage(no)}"/></button>
                             {$file.original_filename|wash( xhtml )}&nbsp;({$file.filesize|si( byte )})
                         </td>
+                        <td>
+                            <input type="text" value="{$key}" name="{$attribute_base}_sort_{$attribute.id}[{$file.original_filename|wash( xhtml )}]" class="box" />
+                        </td>
                     </tr>
                 {/foreach}
+                <tr>
+                    <td></td>
+                    <td>
+                        <button class="btn btn-default btn-xs pull-right" type="submit"
+                                name="CustomActionButton[{$attribute.id}_sort_binary]" title="Ordina">
+                            Ordina
+                        </button>
+                    </td>
+                </tr>
             </table>
         {else}
             <p>Nessun file caricato.</p>

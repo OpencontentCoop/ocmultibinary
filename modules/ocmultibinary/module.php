@@ -35,10 +35,16 @@ $ViewList['download'] = array(
     'script' => 'download.php',
     'params' => array( 'ContentObjectID', 'ContentObjectAttributeID', 'Version', 'File' )
  );
+
 $ViewList['upload'] = array(
     'script' => 'upload.php',
-    'params' => array( 'AttributeID', 'Version', 'Language', 'Random' )
-    );
+    'params' => array('AttributeID', 'Version', 'Language', 'Random')
+);
+
+$ViewList['sort'] = array(
+    'script' => 'sort.php',
+    'params' => array('AttributeID', 'Version', 'Language', 'Random')
+);
 
 $FunctionList = array();
 

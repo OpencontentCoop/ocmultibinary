@@ -14,6 +14,36 @@
                     var $spinner = $element.find('.upload-button-spinner');
                     var $fileList = $element.find('.upload-file-list');
 
+                    var _sort = function(el) {
+                        $(el).sortable({
+                            update: function( event, ui ) {
+                                var files = [];
+                                $(this).children().each(function(index) {
+                                    $(this).find('.sort').val(index);
+                                    files.push($(this).find('.sort').data('filename'));
+                                });
+
+                                $.ajax({
+                                    url: $fileList.data('sorturl'),
+                                    dataType: "json",
+                                    type: "post",
+                                    cache: false,
+                                    data: {
+                                        files: JSON.stringify(files)
+                                    },
+                                    success: function (response) {
+                                        console.log(response)
+                                    }
+                                });
+
+
+                            }
+                        });
+                    };
+
+                    // Add sort feature to list
+                    _sort($fileList.find('.list tbody'));
+
                     $element.find('.upload').fileupload({
                         dropZone: $element,
                         formData: function (form) {
@@ -33,6 +63,9 @@
                                 $buttonContainer.html(errorContainer);
                             } else if (typeof data.result.content != 'undefined') {
                                 $fileList.html(data.result.content);
+
+                                // Add sort feature to list
+                                _sort($fileList.find('.list tbody'));
                             }
                             $buttonContainer.show();
                             $spinner.hide();
