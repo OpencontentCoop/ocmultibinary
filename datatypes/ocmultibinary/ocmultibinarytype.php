@@ -448,7 +448,7 @@ class OCMultiBinaryType extends eZDataType
         $lastKey = end(array_keys($sortedFiles));
         $sortedFiles[$lastKey+1] = $binary->attribute('original_filename');
 
-        $objectAttribute->setAttribute('data_text', serialize($sortedFiles));
+        $objectAttribute->setAttribute('data_text', serialize(array_unique($sortedFiles)));
         $objectAttribute->store();
 
         return true;
@@ -560,7 +560,7 @@ class OCMultiBinaryType extends eZDataType
         $lastKey = end(array_keys($sortedFiles));
         $sortedFiles[$lastKey+1] = $binary->attribute('original_filename');
 
-        $objectAttribute->setAttribute('data_text', serialize($sortedFiles));
+        $objectAttribute->setAttribute('data_text', serialize(array_unique($sortedFiles)));
         $objectAttribute->store();
 
         $db->commit();
