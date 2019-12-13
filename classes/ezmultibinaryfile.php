@@ -162,5 +162,3 @@ class eZMultiBinaryFile extends eZBinaryFile
     }
 
 }
-
-?>

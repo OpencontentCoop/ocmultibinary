@@ -254,6 +254,20 @@ class OCMultiBinaryType extends eZDataType
                 $result
             );
 
+        } elseif ($action == 'sort_binary') {
+            if ( $http->hasPostVariable( $base . "_sort_" . $contentObjectAttribute->attribute( "id" ) ) ) {
+                $data = $http->postVariable( $base . "_sort_" . $contentObjectAttribute->attribute( "id" ) );
+
+                $files = array();
+                foreach ($data as $k => $v) {
+                    $files[$v] = $k;
+                }
+                ksort($files);
+                $contentObjectAttribute->setAttribute( "data_text", serialize($files) );
+                $contentObjectAttribute->store();
+                return true;
+            }
+            return false;
 
         } elseif ($action == 'delete_multibinary') {
 
@@ -430,7 +444,11 @@ class OCMultiBinaryType extends eZDataType
             }
         }
 
-        $objectAttribute->setAttribute('data_text', serialize($files));
+        $sortedFiles = (array)unserialize($objectAttribute->attribute('data_text'));
+        $lastKey = end(array_keys($sortedFiles));
+        $sortedFiles[$lastKey+1] = $binary->attribute('original_filename');
+
+        $objectAttribute->setAttribute('data_text', serialize(array_unique($sortedFiles)));
         $objectAttribute->store();
 
         return true;
@@ -538,7 +556,11 @@ class OCMultiBinaryType extends eZDataType
             }
         }
 
-        $objectAttribute->setAttribute('data_text', serialize($files));
+        $sortedFiles = (array)unserialize($objectAttribute->attribute('data_text'));
+        $lastKey = end(array_keys($sortedFiles));
+        $sortedFiles[$lastKey+1] = $binary->attribute('original_filename');
+
+        $objectAttribute->setAttribute('data_text', serialize(array_unique($sortedFiles)));
         $objectAttribute->store();
 
         $db->commit();
@@ -688,12 +710,14 @@ class OCMultiBinaryType extends eZDataType
 
         // sort the files
         $sortConditions = unserialize($contentObjectAttribute->attribute('data_text'));
+
         if (is_array($sortConditions) && count($sortConditions) > 0) {
             $sortedBinaryFiles = array();
             foreach ($binaryFiles as $binaryFile) {
                 if ($binaryFile instanceof eZMultiBinaryFile) {
                     // don't use array_search because array_search didn't read value with the key 0. don't know why...
                     foreach ($sortConditions as $key => $value) {
+
                         if ($binaryFile->attribute('original_filename') == $value) {
                             $sortedBinaryFiles[$key] = $binaryFile;
                         }
@@ -701,12 +725,11 @@ class OCMultiBinaryType extends eZDataType
                 }
             }
 
+            ksort($sortedBinaryFiles);
             return $sortedBinaryFiles;
         } else {
             return $binaryFiles;
         }
-
-
     }
 
     function isIndexable()
@@ -801,6 +824,8 @@ class OCMultiBinaryType extends eZDataType
                     }
                 }
             }
+
+            ksort($sortedBinaryFiles);
         } else {
             $sortedBinaryFiles = $binaryFiles;
         }

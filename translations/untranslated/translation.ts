@@ -5,59 +5,59 @@
         <name>extension/ocmultibinary</name>
         <message>
             <source>Select files</source>
-            <translation>Dateien auswählen</translation>
+            <translation type="unfinished" />
         </message>
         <message>
             <source>Filename</source>
-            <translation>Dateiname</translation>
+            <translation type="unfinished" />
         </message>
         <message>
             <source>Status</source>
-            <translation>Status</translation>
+            <translation type="unfinished" />
         </message>
         <message>
             <source>Size</source>
-            <translation>Größe</translation>
+            <translation type="unfinished" />
         </message>
         <message>
             <source>Drag file here.</source>
-            <translation>Datei hierher ziehen.</translation>
+            <translation type="unfinished" />
         </message>
         <message>
             <source>Drag files here.</source>
-            <translation>Dateien hierher ziehen.</translation>
+            <translation type="unfinished" />
         </message>
         <message>
             <source>A file with this name is already exists.</source>
-            <translation>Eine Datei mit diesem Namen existiert bereits.</translation>
+            <translation type="unfinished" />
         </message>
         <message>
             <source>You are allowed to upload only one file.</source>
-            <translation>Sie dürfen nur eine Datei hochladen.</translation>
+            <translation type="unfinished" />
         </message>
         <message>
             <source>You are allowed to upload only %s files.</source>
-            <translation>Sie dürfen nur %s Dateien hochladen.</translation>
+            <translation type="unfinished" />
         </message>
         <message>
             <source>Attached files:</source>
-            <translation>File allegati:</translation>
+            <translation type="unfinished" />
         </message>
         <message>
             <source>No files uploaded</source>
-            <translation>Nessun file caricato</translation>
+            <translation type="unfinished" />
         </message>
         <message>
             <source>Delete all files</source>
-            <translation>Elimina tutti i file</translation>
+            <translation type="unfinished" />
         </message>
         <message>
             <source>Remove this file</source>
-            <translation>Rimuovi questo file</translation>
+            <translation type="unfinished" />
         </message>
         <message>
             <source>Add file</source>
-            <translation>Aggiungi file</translation>
+            <translation type="unfinished" />
         </message>
     </context>
 </TS>
