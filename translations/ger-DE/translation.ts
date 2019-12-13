@@ -2,13 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="de_DE" sourcelanguage="en">
 <context>
-    <name>design/standard/class/datatype</name>
-    <message>
-        <source>Max number of files for the upload</source>
-        <translation>Maximale Anzahl an Dateien für den Upload</translation>
-    </message>
-</context>
-<context>
     <name>extension/ocmultibinary</name>
     <message>
         <source>Select files</source>

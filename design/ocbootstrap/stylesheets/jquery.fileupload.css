@@ -26,6 +26,10 @@
   cursor: pointer;
 }
 
+.list tbody tr {
+  cursor: move;
+}
+
 /* Fixes for IE < 8 */
 @media screen\9 {
   .fileinput-button input {

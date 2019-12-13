@@ -53,6 +53,7 @@ if ($fileCount<$maxFileCount || $maxFileCount == 0){
     /** @var UploadHandler $uploadHandler */
     $uploadHandler = new OCMultiBinaryUploadHandler($options, false);
     $data = $uploadHandler->post(false);
+
     foreach ($data[$options['param_name']] as $file) {
         $filePath = $options['upload_dir'] . $file->name;
         $attribute->dataType()->insertRegularFile(
