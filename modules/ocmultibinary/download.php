@@ -28,9 +28,11 @@ if ( $contentObjectID != $contentObjectIDAttr or !$contentObject->attribute( 'ca
     return $Module->handleError( eZError::KERNEL_ACCESS_DENIED, 'kernel' );
 }
 
+$isCurrentUserDraft = $contentObject->attribute( 'status' ) == eZContentObject::STATUS_DRAFT && eZUser::currentUserID() == $contentObject->attribute( 'owner_id' );
+
 // Get locations.
 $nodeAssignments = $contentObject->attribute( 'assigned_nodes' );
-if ( count( $nodeAssignments ) === 0 )
+if ( count( $nodeAssignments ) === 0 && !$isCurrentUserDraft)
 {
     // oops, no locations. probably it's related object. Let's check his owners
     $ownerList = eZContentObject::fetch( $contentObjectID )->reverseRelatedObjectList( false, false, false, false );
@@ -45,7 +47,7 @@ if ( count( $nodeAssignments ) === 0 )
 }
 
 // If exists location that current user has access to and location is visible.
-$canAccess = false;
+$canAccess = $isCurrentUserDraft;
 foreach ( $nodeAssignments as $nodeAssignment )
 {
     if ( ( eZContentObjectTreeNode::showInvisibleNodes() || !$nodeAssignment->attribute( 'is_invisible' ) ) and $nodeAssignment->canRead() )
