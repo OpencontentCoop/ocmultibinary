@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="de_DE" sourcelanguage="en">
     <context>
+        <name>kernel/classes/datatypes</name>
+        <message>
+            <source>Multiple Files</source>
+            <translation type="unfinished" />
+        </message>
+    </context>
+    <context>
         <name>extension/ocmultibinary</name>
         <message>
             <source>Select files</source>
