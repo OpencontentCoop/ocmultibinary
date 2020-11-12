@@ -370,14 +370,20 @@ class OCMultiBinaryType extends eZDataType
 
         if (!file_exists($destination)) {
             if (!eZDir::mkdir($destination, false, true)) {
-                $result['errors'][] = "Can not create local file";
+                $result['errors'][] = ezpI18n::tr(
+                    'extension/ocmultibinary',
+                    'Can not create local file. Please contact the site administrator.'
+                );
 
                 return false;
             }
         }
 
         if (!file_exists($filePath)) {
-            $result['errors'][] = "$filePath not found";
+            $result['errors'][] = ezpI18n::tr(
+                'extension/ocmultibinary',
+                'Original file not found. Please contact the site administrator.'
+            );
 
             return false;
         }
@@ -445,7 +451,8 @@ class OCMultiBinaryType extends eZDataType
         }
 
         $sortedFiles = (array)unserialize($objectAttribute->attribute('data_text'));
-        $lastKey = end(array_keys($sortedFiles));
+        $sortedFilesKeys = array_keys($sortedFiles);
+        $lastKey = end($sortedFilesKeys);
         $sortedFiles[$lastKey+1] = $binary->attribute('original_filename');
 
         $objectAttribute->setAttribute('data_text', serialize(array_unique($sortedFiles)));
@@ -557,7 +564,8 @@ class OCMultiBinaryType extends eZDataType
         }
 
         $sortedFiles = (array)unserialize($objectAttribute->attribute('data_text'));
-        $lastKey = end(array_keys($sortedFiles));
+        $sortedFilesKeys = array_keys($sortedFiles);
+        $lastKey = end($sortedFilesKeys);
         $sortedFiles[$lastKey+1] = $binary->attribute('original_filename');
 
         $objectAttribute->setAttribute('data_text', serialize(array_unique($sortedFiles)));
@@ -703,9 +711,7 @@ class OCMultiBinaryType extends eZDataType
         $binaryFiles = $this->getBinaryFiles($contentObjectAttribute, $version);
 
         if (!is_array($binaryFiles) || count($binaryFiles) == 0) {
-            $attrValue = false;
-
-            return $attrValue;
+            return false;
         }
 
         // sort the files
@@ -937,9 +943,8 @@ class OCMultiBinaryType extends eZDataType
         $diff = new eZDiff();
         $diff->setDiffEngineType($diff->engineType('text'));
         $diff->initDiffEngine();
-        $diffObject = $diff->diff($old->toString(), $new->toString());
 
-        return $diffObject;
+        return $diff->diff($old->toString(), $new->toString());
     }
 
     /**
@@ -959,10 +964,10 @@ class OCMultiBinaryType extends eZDataType
     }
 
     /**
-     * @param eZContentObjectAttribute $objectAttribute
-     * @param string $string
-     *
-     * @return bool
+     * @param $objectAttribute
+     * @param $string
+     * @return bool|void
+     * @throws Exception
      */
     function fromString($objectAttribute, $string)
     {
