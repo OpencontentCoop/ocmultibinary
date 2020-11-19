@@ -51,7 +51,14 @@ if ($fileCount < $maxFileCount || $maxFileCount == 0) {
     $options['image_versions'] = array();
     $options['max_file_size'] = $http->variable("upload_max_file_size", null);
 
-    /** @var UploadHandler $uploadHandler */
+    if (eZINI::instance('ocmultibinary.ini')->hasVariable('AcceptFileTypesRegex', 'ClassAttributeIdentifier')) {
+        $acceptFileTypesClassAttributeIdentifier = eZINI::instance('ocmultibinary.ini')->variable('AcceptFileTypesRegex', 'ClassAttributeIdentifier');
+        if (isset($acceptFileTypesClassAttributeIdentifier[$object->attribute('class_identifier') . '/' . $attribute->attribute('contentclass_attribute_identifier')])) {
+            $options['accept_file_types'] = $acceptFileTypesClassAttributeIdentifier[$object->attribute('class_identifier') . '/' . $attribute->attribute('contentclass_attribute_identifier')];
+        }
+    }
+
+    /** @var OCMultiBinaryUploadHandler $uploadHandler */
     $uploadHandler = new OCMultiBinaryUploadHandler($options, false, [
         1 => ezpI18n::tr('extension/ocmultibinary', 'The uploaded file exceeds the upload_max_filesize directive in php.ini'),
         2 => ezpI18n::tr('extension/ocmultibinary', 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form'),
@@ -75,18 +82,22 @@ if ($fileCount < $maxFileCount || $maxFileCount == 0) {
     $data = $uploadHandler->post(false);
 
     foreach ($data[$options['param_name']] as $file) {
-        $filePath = $options['upload_dir'] . $file->name;
-        $attribute->dataType()->insertRegularFile(
-            $attribute->attribute('object'),
-            $attribute->attribute('version'),
-            $attribute->attribute('language_code'),
-            $attribute,
-            $filePath,
-            $response
-        );
-        $file = eZClusterFileHandler::instance($filePath);
-        if ($file->exists()) {
-            $file->delete();
+        if ($file->error) {
+            $response['errors'][] = $file->error;
+        } else {
+            $filePath = $options['upload_dir'] . $file->name;
+            $attribute->dataType()->insertRegularFile(
+                $attribute->attribute('object'),
+                $attribute->attribute('version'),
+                $attribute->attribute('language_code'),
+                $attribute,
+                $filePath,
+                $response
+            );
+            $file = eZClusterFileHandler::instance($filePath);
+            if ($file->exists()) {
+                $file->delete();
+            }
         }
     }
 
