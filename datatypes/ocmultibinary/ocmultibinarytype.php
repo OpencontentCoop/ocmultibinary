@@ -971,14 +971,13 @@ class OCMultiBinaryType extends eZDataType
      */
     function fromString($objectAttribute, $string)
     {
-        if (!$string) {
-            return true;
-        }
-
         $version = $objectAttribute->attribute('version');
         $this->deleteStoredObjectAttribute($objectAttribute, $version);
 
         $filePaths = explode('|', $string);
+        if (empty($filePaths)) {
+            return true;
+        }
 
         $errors = array();
         $insertFileCount = 0;
