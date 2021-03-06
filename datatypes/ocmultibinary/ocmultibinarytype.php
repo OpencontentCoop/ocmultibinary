@@ -1,13 +1,14 @@
 <?php
 
-
 class OCMultiBinaryType extends eZDataType
 {
     const MAX_FILESIZE_FIELD = 'data_int1';
     const MAX_NUMBER_OF_FILES_FIELD = 'data_int2';
+    const ALLOW_DECORATIONS_FIELD = 'data_int3';
 
     const MAX_FILESIZE_VARIABLE = '_ocmultibinary_max_filesize_';
     const MAX_NUMBER_OF_FILES_VARIABLE = '_ocmultibinary_max_number_of_files_';
+    const ALLOW_DECORATIONS_VARIABLE = '_ocmultibinary_allow_decoration_';
 
     const DATA_TYPE_STRING = 'ocmultibinary';
 
@@ -37,9 +38,34 @@ class OCMultiBinaryType extends eZDataType
         $contentObjectAttributeID = $contentObjectAttribute->attribute('id');
         if ($version === false) {
             $version = $contentObjectAttribute->attribute('version');
-            $binaryFiles = eZMultiBinaryFile::fetch($contentObjectAttributeID, $version);
-        } else {
-            $binaryFiles = eZMultiBinaryFile::fetch($contentObjectAttributeID, $version);
+        }
+        $binaryFiles = (array)eZMultiBinaryFile::fetch($contentObjectAttributeID, $version);
+
+        $decorations = self::parseDecorations($contentObjectAttribute);
+        if (!empty($decorations)) {
+            foreach ($binaryFiles as $binaryFile) {
+                if ($binaryFile instanceof eZMultiBinaryFile) {
+                    foreach ($decorations as $key => $value) {
+                        $displayName = $value['display_name'];
+                        $group = $value['display_group'];
+                        $text = $value['display_text'];
+                        $order = $value['display_order'];
+                        $originalFileName = $value['original_filename'];
+                        if ($binaryFile->attribute('original_filename') == $originalFileName) {
+                            $binaryFile->setAttribute('display_order', $order);
+                            $binaryFile->setAttribute('display_name', $displayName);
+                            $binaryFile->setAttribute('display_group', $group);
+                            $binaryFile->setAttribute('display_text', $text);
+                        }
+                    }
+                }
+            }
+            usort($binaryFiles, function($a, $b){
+                if ($a->attribute('display_order') == $b->attribute('display_order')) {
+                    return 0;
+                }
+                return ($a->attribute('display_order') < $b->attribute('display_order')) ? -1 : 1;
+            });
         }
 
         return $binaryFiles;
@@ -61,6 +87,8 @@ class OCMultiBinaryType extends eZDataType
                 $oldFile->setAttribute('version', $version);
                 $oldFile->store();
             }
+            $dataText = $originalContentObjectAttribute->attribute( "data_text" );
+            $contentObjectAttribute->setAttribute( "data_text", $dataText );
         }
     }
 
@@ -209,7 +237,38 @@ class OCMultiBinaryType extends eZDataType
      */
     function fetchObjectAttributeHTTPInput($http, $base, $contentObjectAttribute)
     {
+        $displayNames = $http->hasPostVariable($base . "_display_name_" . $contentObjectAttribute->attribute("id")) ?
+            $http->postVariable($base . "_display_name_" . $contentObjectAttribute->attribute("id")) : [];
+        $displayGroups = $http->hasPostVariable($base . "_display_group_" . $contentObjectAttribute->attribute("id")) ?
+            $http->postVariable($base . "_display_group_" . $contentObjectAttribute->attribute("id")) : [];
+        $displayTexts = $http->hasPostVariable($base . "_display_text_" . $contentObjectAttribute->attribute("id")) ?
+            $http->postVariable($base . "_display_text_" . $contentObjectAttribute->attribute("id")) : [];
+        $displayOrders = $http->hasPostVariable($base . "_sort_" . $contentObjectAttribute->attribute("id")) ?
+            $http->postVariable($base . "_sort_" . $contentObjectAttribute->attribute("id")) : [];
 
+        if (!empty($displayNames) && !empty($displayGroups) && !empty($displayOrders)){
+            $storedDecorations = self::parseDecorations($contentObjectAttribute);
+            foreach ($storedDecorations as $index => $storedDecoration){
+                $fileName = $storedDecoration['original_filename'];
+                if (isset($displayNames[$fileName])){
+                    $storedDecorations[$index]['display_name'] = $displayNames[$fileName];
+                }
+                if (isset($displayGroups[$fileName])){
+                    $storedDecorations[$index]['display_group'] = $displayGroups[$fileName];
+                }
+                if (isset($displayOrders[$fileName])){
+                    $storedDecorations[$index]['display_order'] = $displayOrders[$fileName];
+                }
+                if (isset($displayTexts[$fileName])){
+                    $storedDecorations[$index]['display_text'] = $displayTexts[$fileName];
+                }
+            }
+            self::storeDecorations($contentObjectAttribute, $storedDecorations);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -257,14 +316,12 @@ class OCMultiBinaryType extends eZDataType
         } elseif ($action == 'sort_binary') {
             if ( $http->hasPostVariable( $base . "_sort_" . $contentObjectAttribute->attribute( "id" ) ) ) {
                 $data = $http->postVariable( $base . "_sort_" . $contentObjectAttribute->attribute( "id" ) );
-
                 $files = array();
                 foreach ($data as $k => $v) {
                     $files[$v] = $k;
                 }
                 ksort($files);
-                $contentObjectAttribute->setAttribute( "data_text", serialize($files) );
-                $contentObjectAttribute->store();
+                self::setFileOrder($contentObjectAttribute, $files);
                 return true;
             }
             return false;
@@ -302,6 +359,7 @@ class OCMultiBinaryType extends eZDataType
                             if ($file->exists() and count($binaryObjectsWithSameFileName) < 1) {
                                 $file->delete();
                             }
+                            self::removeFileFromDecorations($contentObjectAttribute, $binaryFile->attribute('original_filename'));
                         }
                     }
                 }
@@ -320,7 +378,6 @@ class OCMultiBinaryType extends eZDataType
     {
         return true;
     }
-
 
     /**
      * @param eZContentObject $object
@@ -406,7 +463,6 @@ class OCMultiBinaryType extends eZDataType
         $fileHandler = eZClusterFileHandler::instance();
         $fileHandler->fileStore($destination, 'binaryfile', true, $mimeData['name']);
 
-
         $binary->setAttribute("contentobject_attribute_id", $attributeID);
         $binary->setAttribute("version", $objectVersion);
         $binary->setAttribute("filename", $destFileName);
@@ -450,13 +506,7 @@ class OCMultiBinaryType extends eZDataType
             }
         }
 
-        $sortedFiles = (array)unserialize($objectAttribute->attribute('data_text'));
-        $sortedFilesKeys = array_keys($sortedFiles);
-        $lastKey = end($sortedFilesKeys);
-        $sortedFiles[$lastKey+1] = $binary->attribute('original_filename');
-
-        $objectAttribute->setAttribute('data_text', serialize(array_unique($sortedFiles)));
-        $objectAttribute->store();
+        self::addFileToDecorations($objectAttribute, $binary->attribute('original_filename'));
 
         return true;
     }
@@ -563,13 +613,7 @@ class OCMultiBinaryType extends eZDataType
             }
         }
 
-        $sortedFiles = (array)unserialize($objectAttribute->attribute('data_text'));
-        $sortedFilesKeys = array_keys($sortedFiles);
-        $lastKey = end($sortedFilesKeys);
-        $sortedFiles[$lastKey+1] = $binary->attribute('original_filename');
-
-        $objectAttribute->setAttribute('data_text', serialize(array_unique($sortedFiles)));
-        $objectAttribute->store();
+        self::addFileToDecorations($objectAttribute, $binary->attribute('original_filename'));
 
         $db->commit();
 
@@ -655,6 +699,12 @@ class OCMultiBinaryType extends eZDataType
             $filenumberValue = $http->postVariable($filenumberName);
             $classAttribute->setAttribute(self::MAX_NUMBER_OF_FILES_FIELD, $filenumberValue);
         }
+        $allowDecorationName = $base . self::ALLOW_DECORATIONS_VARIABLE . $classAttribute->attribute('id');
+        if ($http->hasPostVariable($allowDecorationName)) {
+            $classAttribute->setAttribute(self::ALLOW_DECORATIONS_FIELD, 1);
+        }else{
+            $classAttribute->setAttribute(self::ALLOW_DECORATIONS_FIELD, 0);
+        }
     }
 
     /**
@@ -663,7 +713,7 @@ class OCMultiBinaryType extends eZDataType
      *
      * @return array|string
      */
-    function title($contentObjectAttribute, $name = 'original_filename')
+    function title($contentObjectAttribute, $name = 'display_name')
     {
         $names = array();
         $version = $contentObjectAttribute->attribute('version');
@@ -693,11 +743,7 @@ class OCMultiBinaryType extends eZDataType
         $version = $contentObjectAttribute->attribute('version');
         $binaryFiles = $this->getBinaryFiles($contentObjectAttribute, $version);
 
-        if (count($binaryFiles) > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return count($binaryFiles) > 0;
     }
 
     /**
@@ -714,28 +760,7 @@ class OCMultiBinaryType extends eZDataType
             return false;
         }
 
-        // sort the files
-        $sortConditions = unserialize($contentObjectAttribute->attribute('data_text'));
-
-        if (is_array($sortConditions) && count($sortConditions) > 0) {
-            $sortedBinaryFiles = array();
-            foreach ($binaryFiles as $binaryFile) {
-                if ($binaryFile instanceof eZMultiBinaryFile) {
-                    // don't use array_search because array_search didn't read value with the key 0. don't know why...
-                    foreach ($sortConditions as $key => $value) {
-
-                        if ($binaryFile->attribute('original_filename') == $value) {
-                            $sortedBinaryFiles[$key] = $binaryFile;
-                        }
-                    }
-                }
-            }
-
-            ksort($sortedBinaryFiles);
-            return $sortedBinaryFiles;
-        } else {
-            return $binaryFiles;
-        }
+        return $binaryFiles;
     }
 
     function isIndexable()
@@ -761,6 +786,15 @@ class OCMultiBinaryType extends eZDataType
                     $metaData[] = $file->metaData();
                 }else {
                     $metaData[] = $file->attribute('original_filename');
+                    $metaData[] = $file->attribute('display_name');
+                    $displayGroup = $file->attribute('display_group');
+                    if (!empty($displayGroup)) {
+                        $metaData[] = $displayGroup;
+                    }
+                    $displayText = $file->attribute('display_text');
+                    if (!empty($displayText)) {
+                        $metaData[] = $displayText;
+                    }
                 }
             }
         }
@@ -785,6 +819,11 @@ class OCMultiBinaryType extends eZDataType
         $maxNumberOfNode = $dom->createElement('max-number-of');
         $maxNumberOfNode->appendChild($dom->createTextNode($maxNumberOf));
         $attributeParametersNode->appendChild($maxNumberOfNode);
+
+        $allowDecoration = $classAttribute->attribute(self::ALLOW_DECORATIONS_FIELD);
+        $allowDecorationNode = $dom->createElement('allow-decoration');
+        $allowDecorationNode->appendChild($dom->createTextNode($allowDecoration));
+        $attributeParametersNode->appendChild($allowDecorationNode);
     }
 
     /**
@@ -801,6 +840,10 @@ class OCMultiBinaryType extends eZDataType
         $maxNumberOfNode = $attributeParametersNode->getElementsByTagName('max-number-of')->item(0);
         $maxNumberOf = $maxNumberOfNode->textContent;
         $classAttribute->setAttribute(self::MAX_NUMBER_OF_FILES_FIELD, $maxNumberOf);
+
+        $allowDecorationNode = $attributeParametersNode->getElementsByTagName('allow-decoration')->item(0);
+        $allowDecoration = $allowDecorationNode->textContent;
+        $classAttribute->setAttribute(self::ALLOW_DECORATIONS_FIELD, $allowDecoration);
     }
 
     /**
@@ -849,6 +892,10 @@ class OCMultiBinaryType extends eZDataType
                 $fileNode->setAttribute('original-filename', $binaryFile->attribute('original_filename'));
                 $fileNode->setAttribute('mime-type', $binaryFile->attribute('mime_type'));
                 $fileNode->setAttribute('filekey', $fileKey);
+                $fileNode->setAttribute('display-name', $binaryFile->attribute('display_name'));
+                $fileNode->setAttribute('display-group', $binaryFile->attribute('display_group'));
+                $fileNode->setAttribute('display-order', $binaryFile->attribute('display_order'));
+                $fileNode->setAttribute('display-text', $binaryFile->attribute('display_text'));
                 $node->appendChild($fileNode);
             }
         }
@@ -867,7 +914,7 @@ class OCMultiBinaryType extends eZDataType
     {
         /** @var DOMElement[] $fileNodes */
         $fileNodes = $attributeNode->getElementsByTagName('multibinary-file');
-        $sort_array = array();
+        $decorations = array();
         foreach ($fileNodes as $fileNode) {
             if (!is_object($fileNode) or !$fileNode->hasAttributes()) {
                 return false;
@@ -912,16 +959,20 @@ class OCMultiBinaryType extends eZDataType
             $binaryFile->setAttribute('original_filename', $fileNode->getAttribute('original-filename'));
             $binaryFile->setAttribute('mime_type', $fileNode->getAttribute('mime-type'));
 
-            $sort_array[$fileNode->getAttribute('sort-id')] = $fileNode->getAttribute('original-filename');
+            $decorations[$fileNode->getAttribute('sort-id')] = [
+                'display_name' => $fileNode->getAttribute('display-name'),
+                'display_group' => $fileNode->getAttribute('display-group'),
+                'display_order' => $fileNode->getAttribute('display-order'),
+                'display_text' => $fileNode->getAttribute('display-text'),
+            ];
 
             $binaryFile->store();
 
             $fileHandler = eZClusterFileHandler::instance();
             $fileHandler->fileStore($destinationPath . $basename, 'binaryfile', true);
         }
-        // save the chronology of the files for sorting
-        $objectAttribute->setAttribute('data_text', serialize($sort_array));
-        $objectAttribute->store();
+
+        self::storeDecorations($objectAttribute, $decorations);
 
         return true;
     }
@@ -950,14 +1001,19 @@ class OCMultiBinaryType extends eZDataType
     /**
      * @param eZContentObjectAttribute $objectAttribute
      *
-     * @return string
+     * @return string original_filename##display_name##display_group##display_text|...
      */
     function toString($objectAttribute)
     {
         $files = $this->getBinaryFiles($objectAttribute, $objectAttribute->attribute('version'));
         $stringArray = array();
         foreach ($files as $file) {
-            $stringArray[] = $file->attribute('original_filename');
+            $stringArray[] = implode('##', [
+                $file->attribute('original_filename'),
+                $file->attribute('display_name'),
+                $file->attribute('display_group'),
+                $file->attribute('display_text'),
+            ]);
         }
 
         return implode('|', $stringArray);
@@ -965,7 +1021,7 @@ class OCMultiBinaryType extends eZDataType
 
     /**
      * @param $objectAttribute
-     * @param $string
+     * @param string $string file_path##display_name##display_group##display_text|...
      * @return bool|void
      * @throws Exception
      */
@@ -981,7 +1037,11 @@ class OCMultiBinaryType extends eZDataType
 
         $errors = array();
         $insertFileCount = 0;
-        foreach ($filePaths as $filePath) {
+        $insertDecorations = [];
+        foreach ($filePaths as $stringItem) {
+            $filePathParts = explode('##', $stringItem);
+            $filePath = $filePathParts[0];
+            $insertDecorations[basename($filePath)] = $filePathParts;
             $result = array();
             if ($this->insertRegularFile(
                 $objectAttribute->attribute('object'),
@@ -1001,7 +1061,160 @@ class OCMultiBinaryType extends eZDataType
         if (count($errors) > 0) {
             eZDebug::writeError(var_export($errors, 1), __METHOD__);
         }
+
+        $decorations = self::parseDecorations($objectAttribute);
+        foreach ($decorations as $index => $decoration){
+            if (isset($insertDecorations[$decoration['original_filename']])){
+                if ($insertDecorations[$decoration['original_filename']][1])
+                    $decorations[$index]['display_name'] = $insertDecorations[$decoration['original_filename']][1];
+                if ($insertDecorations[$decoration['original_filename']][2])
+                    $decorations[$index]['display_group'] = $insertDecorations[$decoration['original_filename']][2];
+                if ($insertDecorations[$decoration['original_filename']][3])
+                    $decorations[$index]['display_text'] = $insertDecorations[$decoration['original_filename']][3];
+            }
+        }
+        self::storeDecorations($objectAttribute, $decorations);
+
         return count($filePaths) == $insertFileCount;
+    }
+
+    public static function setFileOrder($contentObjectAttribute, $sortedFiles)
+    {
+        $decorations = self::parseDecorations($contentObjectAttribute);
+
+        foreach ($sortedFiles as $index => $file) {
+            $isMissing = true;
+            foreach ($decorations as $key => $decoration) {
+                if ($decoration['original_filename'] == $file) {
+                    $decorations[$key]['display_order'] = $index;
+                    $isMissing = false;
+                }
+            }
+            if ($isMissing){
+                $decorations[] = [
+                    'original_filename' => $file,
+                    'display_name' => self::cleanFileName($file),
+                    'display_group' => '',
+                    'display_text' => '',
+                    'display_order' => $index,
+                ];
+            }
+        }
+
+        self::storeDecorations($contentObjectAttribute, $decorations);
+    }
+
+    public static function parseDecorations($contentObjectAttribute)
+    {
+        $decorations = array();
+        $storedDecorations = unserialize($contentObjectAttribute->attribute('data_text'));
+        if (!empty($storedDecorations)){
+            foreach ($storedDecorations as $index => $storedDecoration){
+                if (!is_array($storedDecoration)){
+                    $decorations[] = [
+                        'original_filename' => $storedDecoration,
+                        'display_name' => self::cleanFileName($storedDecoration),
+                        'display_group' => '',
+                        'display_text' => '',
+                        'display_order' => $index,
+                    ];
+                }else{
+                    $decorations[] = array_merge([
+                        'display_name' => '',
+                        'display_group' => '',
+                        'display_text' => '',
+                        'display_order' => $index,
+                    ], $storedDecoration);
+                }
+            }
+        }
+        usort($decorations, function ($a, $b){
+            if ($a['display_order'] == $b['display_order']) {
+                return 0;
+            }
+            return ($a['display_order'] < $b['display_order']) ? -1 : 1;
+        });
+
+        return $decorations;
+    }
+
+    private static function removeFileFromDecorations($contentObjectAttribute, $filename)
+    {
+        $storedDecorations = self::parseDecorations($contentObjectAttribute);
+        foreach ($storedDecorations as $index => $storedDecoration){
+            if ($storedDecoration['original_filename'] == $filename){
+                unset($storedDecorations[$index]);
+            }
+        }
+        self::storeDecorations($contentObjectAttribute, $storedDecorations);
+    }
+
+    private static function addFileToDecorations($contentObjectAttribute, $filename)
+    {
+        $decorations = $storedDecorations = self::parseDecorations($contentObjectAttribute);
+        $lastIndex = -1;
+        if (count($storedDecorations) > 0){
+            $lastStoredDecoration = array_pop($storedDecorations);
+            $lastIndex = $lastStoredDecoration['display_order'];
+        }
+        $decorations[] = [
+            'original_filename' => $filename,
+            'display_name' => self::cleanFileName($filename),
+            'display_group' => '',
+            'display_text' => '',
+            'display_order' => $lastIndex+1,
+        ];
+        self::storeDecorations($contentObjectAttribute, $decorations);
+    }
+
+    private static function storeDecorations($contentObjectAttribute, $data)
+    {
+        $contentObjectAttribute->setAttribute('data_text', serialize($data));
+        $contentObjectAttribute->store();
+    }
+
+    private static function cleanFileName($filename)
+    {
+        $parts = explode('.', $filename);
+        if (count($parts) > 1) {
+            array_pop($parts);
+        }
+        $filename = implode('.', $parts);
+        $filename = str_replace(array('_', '-', '+'), ' ', $filename);
+        $filename = str_replace(':', '/', $filename);
+        $filename = str_replace('(1)', '', $filename);
+        $filename = str_replace('(2)', '', $filename);
+        $filename = str_replace('(3)', '', $filename);
+        $filename = str_replace('(4)', '', $filename);
+        $filename = str_replace('(5)', '', $filename);
+
+        $filename = trim($filename);
+
+        return ucfirst($filename);
+    }
+
+    /**
+     * @param eZContentObjectAttribute $contentObjectAttribute
+     * @return string
+     */
+    function viewTemplate( $contentObjectAttribute )
+    {
+        $suffix = '';
+        if ($contentObjectAttribute->contentClassAttribute()->attribute(self::ALLOW_DECORATIONS_FIELD)) {
+            $suffix = '_decorated';
+        }
+
+        return $this->DataTypeString . $suffix;
+    }
+
+    function editTemplate( $contentObjectAttribute )
+    {
+        $suffix = '';
+        if ($contentObjectAttribute->contentClassAttribute()->attribute(self::ALLOW_DECORATIONS_FIELD)) {
+            $suffix = '_decorated';
+        }
+
+        return $this->DataTypeString . $suffix;
     }
 }
 

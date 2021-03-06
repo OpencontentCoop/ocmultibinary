@@ -3,6 +3,14 @@
 class eZMultiBinaryFile extends eZBinaryFile
 {
 
+    private $displayName;
+
+    private $displayGroup;
+
+    private $displayOrder;
+
+    private $displayText;
+
     static function definition()
     {
         static $definition = array(
@@ -58,7 +66,17 @@ class eZMultiBinaryFile extends eZBinaryFile
                 'filesize' => 'fileSize',
                 'filepath' => 'filePath',
                 'mime_type_category' => 'mimeTypeCategory',
-                'mime_type_part' => 'mimeTypePart'
+                'mime_type_part' => 'mimeTypePart',
+                'display_name' => 'getDisplayName',
+                'display_group' => 'getDisplayGroup',
+                'display_order' => 'getDisplayOrder',
+                'display_text' => 'getDisplayText',
+            ),
+            'set_functions' => array(
+                'display_name' => 'setDisplayName',
+                'display_group' => 'setDisplayGroup',
+                'display_order' => 'setDisplayOrder',
+                'display_text' => 'setDisplayText',
             ),
             'sort' => array('original_filename' => 'asc'),
             'class_name' => 'eZMultiBinaryFile',
@@ -159,6 +177,70 @@ class eZMultiBinaryFile extends eZBinaryFile
                     'version' => $version
                 ));
         }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDisplayName()
+    {
+        return $this->displayName;
+    }
+
+    /**
+     * @param mixed $displayName
+     */
+    public function setDisplayName($displayName)
+    {
+        $this->displayName = $displayName;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getDisplayGroup()
+    {
+        return $this->displayGroup;
+    }
+
+    /**
+     * @param string $displayGroup
+     */
+    public function setDisplayGroup($displayGroup)
+    {
+        $this->displayGroup = $displayGroup;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getDisplayOrder()
+    {
+        return $this->displayOrder;
+    }
+
+    /**
+     * @param mixed $displayOrder
+     */
+    public function setDisplayOrder($displayOrder)
+    {
+        $this->displayOrder = (int)$displayOrder;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDisplayText()
+    {
+        return $this->displayText;
+    }
+
+    /**
+     * @param string $displayText
+     */
+    public function setDisplayText($displayText)
+    {
+        $this->displayText = $displayText;
     }
 
 }

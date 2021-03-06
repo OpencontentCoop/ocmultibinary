@@ -40,10 +40,16 @@ class OCMultiBinaryOpendataConverter extends File
                     . '/' . $file->attribute('original_filename');
                 eZURI::transformURI($url, false, 'full');
 
-                $data[] = array(
+                $item = array(
                     'filename' => $file->attribute('original_filename'),
                     'url' => $url
                 );
+                if ($attribute->contentClassAttribute()->attribute(OCMultiBinaryType::ALLOW_DECORATIONS_FIELD)){
+                    $item['displayName'] = $file->attribute('display_name');
+                    $item['group'] = $file->attribute('display_group');
+                    $item['text'] = $file->attribute('display_text');
+                }
+                $data[] = $item;
             }
 
             $content['content'] = $data;
@@ -65,7 +71,14 @@ class OCMultiBinaryOpendataConverter extends File
                 $item['file'] = null;
             }
 
-            $values[] = $this->getTemporaryFilePath($item['filename'], $item['url'], $item['file']);
+            $stringValues = [$this->getTemporaryFilePath($item['filename'], $item['url'], $item['file'])];
+            if (isset($item['displayName']) || isset($item['group']) || isset($item['text'])) {
+                $stringValues[] = isset($item['displayName']) ? $item['displayName'] : '';
+                $stringValues[] = isset($item['group']) ? $item['group'] : '';
+                $stringValues[] = isset($item['text']) ? $item['text'] : '';
+            }
+
+            $values[] = implode('##', $stringValues);
         }
 
         return implode('|', $values);

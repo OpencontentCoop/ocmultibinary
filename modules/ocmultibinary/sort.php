@@ -38,10 +38,8 @@ $response = array();
 
 if ($http->hasPostVariable('files')){
     $data = json_decode($http->postVariable('files'), 1);
-
     if ( !empty($data) ) {
-        $attribute->setAttribute('data_text', serialize($data));
-        $attribute->store();
+        OCMultiBinaryType::setFileOrder($attribute, $data);
     }
     $response['status'] = 'success';
 }else{

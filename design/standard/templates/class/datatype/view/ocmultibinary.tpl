@@ -7,3 +7,7 @@
     <label>{'Max number of files for the upload'|i18n( 'design/standard/class/datatype' )}:</label>
     <p>{$class_attribute.data_int2}</p>
 </div>
+<div class="block">
+    <label>{'Enable name customisation'|i18n( 'design/standard/class/datatype' )}:</label>
+    <p>{$class_attribute.data_int3}</p>
+</div>

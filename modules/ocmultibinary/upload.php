@@ -108,7 +108,12 @@ if ($fileCount < $maxFileCount || $maxFileCount == 0) {
     );
     $tpl = eZTemplate::factory();
     $tpl->setVariable('attribute', $attribute);
-    $response['content'] = $tpl->fetch("design:content/datatype/view/filelist.tpl");
+    if ($attribute->contentClassAttribute()->attribute(OCMultiBinaryType::ALLOW_DECORATIONS_FIELD)) {
+        $response['content'] = $tpl->fetch("design:content/datatype/edit/filelist_decorated.tpl");
+    }else{
+        $response['content'] = $tpl->fetch("design:content/datatype/view/filelist.tpl");
+    }
+
 } else {
     $response['errors'] = array(
         ezpI18n::tr('extension/ocmultibinary', 'Maximum number of files exceeded')
