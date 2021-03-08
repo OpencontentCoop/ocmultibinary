@@ -1,3 +1,4 @@
+{default attribute_base=ContentObjectAttribute}
 <table class="list" cellpadding="0" cellspacing="0">
     <thead>
     <tr>
@@ -52,3 +53,4 @@
     </tbody>
 
 </table>
+{/default}

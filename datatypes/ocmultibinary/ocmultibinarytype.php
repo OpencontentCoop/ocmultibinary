@@ -246,7 +246,7 @@ class OCMultiBinaryType extends eZDataType
         $displayOrders = $http->hasPostVariable($base . "_sort_" . $contentObjectAttribute->attribute("id")) ?
             $http->postVariable($base . "_sort_" . $contentObjectAttribute->attribute("id")) : [];
 
-        if (!empty($displayNames) && !empty($displayGroups) && !empty($displayOrders)){
+        if (!empty($displayNames) || !empty($displayGroups) || !empty($displayOrders) || !empty($displayTexts)){
             $storedDecorations = self::parseDecorations($contentObjectAttribute);
             foreach ($storedDecorations as $index => $storedDecoration){
                 $fileName = $storedDecoration['original_filename'];
@@ -291,6 +291,7 @@ class OCMultiBinaryType extends eZDataType
 
             $version = $contentObjectAttribute->attribute('version');
             $this->deleteStoredObjectAttribute($contentObjectAttribute, $version);
+            self::storeDecorations($contentObjectAttribute, []);
 
         } elseif ($action == 'upload_multibinary') {
 
@@ -1151,19 +1152,24 @@ class OCMultiBinaryType extends eZDataType
 
     private static function addFileToDecorations($contentObjectAttribute, $filename)
     {
+        $binaryFiles = (array)eZMultiBinaryFile::fetch($contentObjectAttribute->attribute('id'), $contentObjectAttribute->attribute('version'));
+
         $decorations = $storedDecorations = self::parseDecorations($contentObjectAttribute);
-        $lastIndex = -1;
-        if (count($storedDecorations) > 0){
-            $lastStoredDecoration = array_pop($storedDecorations);
-            $lastIndex = $lastStoredDecoration['display_order'];
+        $storedDecorationsFiles = array_column($storedDecorations, 'original_filename');
+        $lastIndex = count($storedDecorationsFiles);
+        foreach ($binaryFiles as $binaryFile){
+            if (!in_array($binaryFile->attribute('original_filename'), $storedDecorationsFiles)){
+                $lastIndex++;
+                $decorations[] = [
+                    'original_filename' => $binaryFile->attribute('original_filename'),
+                    'display_name' => self::cleanFileName($binaryFile->attribute('original_filename')),
+                    'display_group' => '',
+                    'display_text' => '',
+                    'display_order' => $lastIndex,
+                ];
+            }
         }
-        $decorations[] = [
-            'original_filename' => $filename,
-            'display_name' => self::cleanFileName($filename),
-            'display_group' => '',
-            'display_text' => '',
-            'display_order' => $lastIndex+1,
-        ];
+
         self::storeDecorations($contentObjectAttribute, $decorations);
     }
 

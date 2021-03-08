@@ -24,7 +24,7 @@
         {/if}
 
     </div>
-{/default}
+
 
 
 {ezscript_require( array( 'ezjsc::jquery', 'ezjsc::jqueryio', 'ezjsc::jqueryUI', 'jquery.fileupload.js','jquery.ocmultibinary.js') )}
@@ -36,3 +36,4 @@
         $('#uploader_{$attribute_base}_data_multibinaryfilename_{$attribute.id}').ocmultibinary();
         {rdelim});
 </script>
+{/default}

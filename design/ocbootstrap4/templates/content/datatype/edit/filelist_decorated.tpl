@@ -1,3 +1,4 @@
+{default attribute_base=ContentObjectAttribute}
 <table class="table list table-condensed" cellpadding="0" cellspacing="0">
     <thead>
     <tr>
@@ -53,3 +54,4 @@
     {/if}
     </tbody>
 </table>
+{/default}
