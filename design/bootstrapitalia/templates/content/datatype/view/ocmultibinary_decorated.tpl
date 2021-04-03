@@ -64,7 +64,7 @@
 									<label class="d-none">
 										{'Search in'|i18n('bootstrapitalia')} {$group|wash()}
 									</label>
-									<button class="autocomplete-icon btn btn-link">
+									<button class="autocomplete-icon btn btn-link" aria-label="{'Search'|i18n('openpa/search')}">
 										{display_icon('it-search', 'svg', 'icon icon-sm')}
 									</button>
 								</div>
