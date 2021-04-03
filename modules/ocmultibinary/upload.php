@@ -44,6 +44,10 @@ $response = array();
 $response['errors'] = array();
 
 if ($fileCount < $maxFileCount || $maxFileCount == 0) {
+
+    //store current decorations
+    $attribute->dataType()->fetchObjectAttributeHTTPInput(eZHTTPTool::instance(), 'ContentObjectAttribute', $attribute);
+
     $siteaccess = eZSiteAccess::current();
     $options['upload_dir'] = eZSys::cacheDirectory() . '/fileupload/';
     $options['download_via_php'] = true;
