@@ -12,15 +12,19 @@
       <translation type="unfinished"/>
     </message>
     <message>
+      <source>Status</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
       <source>Display name</source>
       <translation type="unfinished"/>
     </message>
     <message>
-      <source>Tag</source>
+      <source>Display group</source>
       <translation type="unfinished"/>
     </message>
     <message>
-      <source>Status</source>
+      <source>Text</source>
       <translation type="unfinished"/>
     </message>
     <message>

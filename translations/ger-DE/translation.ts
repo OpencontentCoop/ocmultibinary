@@ -16,6 +16,18 @@
       <translation>Status</translation>
     </message>
     <message>
+      <source>Display name</source>
+      <translation>Anzeigename</translation>
+    </message>
+    <message>
+      <source>Display group</source>
+      <translation>Anzeigegruppe</translation>
+    </message>
+    <message>
+      <source>Text</source>
+      <translation>Text</translation>
+    </message>
+    <message>
       <source>Size</source>
       <translation>Größe</translation>
     </message>
@@ -41,7 +53,7 @@
     </message>
     <message>
       <source>Attached files:</source>
-      <translation>Angehängte Dokumente:</translation>
+      <translation>Beigefügte Anhänge:</translation>
     </message>
     <message>
       <source>No files uploaded</source>

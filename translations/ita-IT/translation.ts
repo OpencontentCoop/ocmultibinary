@@ -5,39 +5,51 @@
     <name>extension/ocmultibinary</name>
     <message>
       <source>Select files</source>
-      <translation>Dateien auswählen</translation>
+      <translation>Seleziona file</translation>
     </message>
     <message>
       <source>Filename</source>
-      <translation>Dateiname</translation>
+      <translation>File name</translation>
     </message>
     <message>
       <source>Status</source>
-      <translation>Status</translation>
+      <translation>Stato</translation>
+    </message>
+    <message>
+      <source>Display name</source>
+      <translation>Titolo visualizzato</translation>
+    </message>
+    <message>
+      <source>Display group</source>
+      <translation>Raggruppamento</translation>
+    </message>
+    <message>
+      <source>Text</source>
+      <translation>Descrizione</translation>
     </message>
     <message>
       <source>Size</source>
-      <translation>Größe</translation>
+      <translation>Dimensione</translation>
     </message>
     <message>
       <source>Drag file here.</source>
-      <translation>Datei hierher ziehen.</translation>
+      <translation>Trascina qui il file</translation>
     </message>
     <message>
       <source>Drag files here.</source>
-      <translation>Dateien hierher ziehen.</translation>
+      <translation>Trascina qui i file</translation>
     </message>
     <message>
       <source>A file with this name is already exists.</source>
-      <translation>Eine Datei mit diesem Namen existiert bereits.</translation>
+      <translation>E' già presente un file con lo stesso nome</translation>
     </message>
     <message>
       <source>You are allowed to upload only one file.</source>
-      <translation>Sie dürfen nur eine Datei hochladen.</translation>
+      <translation>Puoi caricare un solo file</translation>
     </message>
     <message>
       <source>You are allowed to upload only %s files.</source>
-      <translation>Sie dürfen nur %s Dateien hochladen.</translation>
+      <translation>Puoi caricare solo %s file</translation>
     </message>
     <message>
       <source>Attached files:</source>
