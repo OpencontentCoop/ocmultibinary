@@ -14,6 +14,13 @@
             {/if}
         </th>
     </tr>
+    <tr>
+        <th colspan="2"></th>
+        <th>{'Display name'|i18n( 'extension/ocmultibinary' )}</th>
+        <th>{'Display group'|i18n( 'extension/ocmultibinary' )}</th>
+        <th>{'Text'|i18n( 'extension/ocmultibinary' )}</th>
+        <th></th>
+    </tr>
     </thead>
     <tbody>
     {if $attribute.has_content}
