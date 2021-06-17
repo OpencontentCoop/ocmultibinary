@@ -16,10 +16,10 @@
            value="{$class_attribute.data_int2}" size="5" maxlength="5"/>
 </div>
 <div class="block">
-    <label for="ContentClass_ocmultibinary_max_number_of_files_{$class_attribute.id}">
+    <label for="ContentClass_ocmultibinary_allow_decoration_{$class_attribute.id}">
         {'Enable name customisation'|i18n( 'design/standard/class/datatype' )}:
     </label>
-    <input type="checkbox" id="ContentClass_ocmultibinary_max_number_of_files_{$class_attribute.id}"
+    <input type="checkbox" id="ContentClass_ocmultibinary_allow_decoration_{$class_attribute.id}"
            name="ContentClass_ocmultibinary_allow_decoration_{$class_attribute.id}"
            {if $class_attribute.data_int3|eq(1)}checked="checked"{/if} value="1"/>
 </div>

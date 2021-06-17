@@ -700,11 +700,13 @@ class OCMultiBinaryType extends eZDataType
             $filenumberValue = $http->postVariable($filenumberName);
             $classAttribute->setAttribute(self::MAX_NUMBER_OF_FILES_FIELD, $filenumberValue);
         }
-        $allowDecorationName = $base . self::ALLOW_DECORATIONS_VARIABLE . $classAttribute->attribute('id');
-        if ($http->hasPostVariable($allowDecorationName)) {
-            $classAttribute->setAttribute(self::ALLOW_DECORATIONS_FIELD, 1);
-        }else{
-            $classAttribute->setAttribute(self::ALLOW_DECORATIONS_FIELD, 0);
+        if ($http->hasPostVariable($filesizeName)) {
+            $allowDecorationName = $base . self::ALLOW_DECORATIONS_VARIABLE . $classAttribute->attribute('id');
+            if ($http->hasPostVariable($allowDecorationName)) {
+                $classAttribute->setAttribute(self::ALLOW_DECORATIONS_FIELD, 1);
+            } else {
+                $classAttribute->setAttribute(self::ALLOW_DECORATIONS_FIELD, 0);
+            }
         }
     }
 
