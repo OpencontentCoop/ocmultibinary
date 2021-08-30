@@ -22,7 +22,7 @@
 						  {if $file.display_text|ne('')}
 							  <small class="d-block my-2">{$file.display_text|wash( xhtml )}</small>
 						  {/if}
-							<small class="d-block">(File {$file.mime_type|explode('application/')|implode('')} <em>{$file.original_filename|wash()}</em> {$file.filesize|si( byte )})</small>
+							<small class="d-block">(File {$file.mime_type|explode('application/')|implode('')} {$file.filesize|si( byte )})</small>
 						  </h5>
 						</div>
 					</div>
