@@ -1190,12 +1190,9 @@ class OCMultiBinaryType extends eZDataType
         $filename = implode('.', $parts);
         $filename = str_replace(array('_', '-', '+'), ' ', $filename);
         $filename = str_replace(':', '/', $filename);
-        $filename = str_replace('(1)', '', $filename);
-        $filename = str_replace('(2)', '', $filename);
-        $filename = str_replace('(3)', '', $filename);
-        $filename = str_replace('(4)', '', $filename);
-        $filename = str_replace('(5)', '', $filename);
-
+        for ($i = 1; $i <= 100; $i++) {
+            $filename = str_replace('('.$i.')', '', $filename);
+        }
         $filename = trim($filename);
 
         return ucfirst($filename);
