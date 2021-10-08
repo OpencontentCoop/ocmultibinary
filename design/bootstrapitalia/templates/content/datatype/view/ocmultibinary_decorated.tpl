@@ -81,7 +81,7 @@
 												<span class="text">
 													{$file.display_name|wash( xhtml )}
 													<em>
-														File {$file.mime_type|explode('application/')|implode('')} {$file.original_filename|wash()} {$file.filesize|si( byte )}
+														File {$file.mime_type|explode('application/')|implode('')} {$file.filesize|si( byte )}
 													{if $file.display_text|ne('')}
 														<small class="d-block my-2">{$file.display_text|wash( xhtml )}</small>
 													{/if}
