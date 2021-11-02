@@ -1,6 +1,7 @@
 {if $attribute.has_content}
 
 	{def $groups = ocmultibinary_available_groups($attribute)}
+	{if count($groups)|eq(0)}{set $groups = $groups|append('')}{/if}
 	{def $groups_count = count($groups)}
 	{if $groups_count|eq(1)}
 		<div class="row mx-lg-n3">
@@ -17,7 +18,7 @@
 						<div class="card-body">
 						  <h5 class="card-title">
 							<a class="stretched-link" href={concat( 'ocmultibinary/download/', $attribute.contentobject_id, '/', $attribute.id,'/', $attribute.version , '/', $file.filename ,'/file/', $file.original_filename|urlencode )|ezurl}>
-								{$file.display_name|wash( xhtml )}
+								{if $file.display_text|ne('')}{$file.display_name|wash( xhtml )}{else}{$file.original_filename|clean_filename()|wash( xhtml )}{/if}
 							</a>
 						  {if $file.display_text|ne('')}
 							  <small class="d-block my-2">{$file.display_text|wash( xhtml )}</small>
@@ -79,7 +80,7 @@
 											</div>
 											<div class="it-right-zone">
 												<span class="text">
-													{$file.display_name|wash( xhtml )}
+													{if $file.display_text|ne('')}{$file.display_name|wash( xhtml )}{else}{$file.original_filename|clean_filename()|wash( xhtml )}{/if}
 													<em>
 														File {$file.mime_type|explode('application/')|implode('')} {$file.filesize|si( byte )}
 													{if $file.display_text|ne('')}
