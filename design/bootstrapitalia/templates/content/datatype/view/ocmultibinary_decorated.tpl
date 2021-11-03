@@ -18,7 +18,7 @@
 						<div class="card-body">
 						  <h5 class="card-title">
 							<a class="stretched-link" href={concat( 'ocmultibinary/download/', $attribute.contentobject_id, '/', $attribute.id,'/', $attribute.version , '/', $file.filename ,'/file/', $file.original_filename|urlencode )|ezurl}>
-								{if $file.display_text|ne('')}{$file.display_name|wash( xhtml )}{else}{$file.original_filename|clean_filename()|wash( xhtml )}{/if}
+								{if $file.display_name|ne('')}{$file.display_name|wash( xhtml )}{else}{$file.original_filename|clean_filename()|wash( xhtml )}{/if}
 							</a>
 						  {if $file.display_text|ne('')}
 							  <small class="d-block my-2">{$file.display_text|wash( xhtml )}</small>
@@ -80,7 +80,7 @@
 											</div>
 											<div class="it-right-zone">
 												<span class="text">
-													{if $file.display_text|ne('')}{$file.display_name|wash( xhtml )}{else}{$file.original_filename|clean_filename()|wash( xhtml )}{/if}
+													{if $file.display_name|ne('')}{$file.display_name|wash( xhtml )}{else}{$file.original_filename|clean_filename()|wash( xhtml )}{/if}
 													<em>
 														File {$file.mime_type|explode('application/')|implode('')} {$file.filesize|si( byte )}
 													{if $file.display_text|ne('')}
