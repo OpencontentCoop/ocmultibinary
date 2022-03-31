@@ -57,15 +57,19 @@ class OCMultiBinaryOpendataConverter extends File
         $values = array();
         foreach ($data as $item) {
 
-            if (!isset($item['url'])) {
-                $item['url'] = null;
-            }
+            if (isset($item['stored'])) {
+                $values[] = $item['stored'];
+            }else {
+                if (!isset($item['url'])) {
+                    $item['url'] = null;
+                }
 
-            if (!isset($item['file'])) {
-                $item['file'] = null;
-            }
+                if (!isset($item['file'])) {
+                    $item['file'] = null;
+                }
 
-            $values[] = $this->getTemporaryFilePath($item['filename'], $item['url'], $item['file']);
+                $values[] = $this->getTemporaryFilePath($item['filename'], $item['url'], $item['file']);
+            }
         }
 
         return implode('|', $values);
@@ -76,6 +80,20 @@ class OCMultiBinaryOpendataConverter extends File
         if (is_array($data)) {
             foreach ($data as $item) {
 
+                if (isset($item['stored'])){
+                    $info = OCMultiBinaryType::isAlreadyStoredFileId($item['stored']);
+                    $binaryFile = eZPersistentObject::fetchObject(eZMultiBinaryFile::definition(),
+                        null,
+                        array(
+                            'contentobject_attribute_id' => $info['id'],
+                            'version' => $info['version'],
+                            'original_filename' => $info['filename'],
+                        )
+                    );
+                    if (!$binaryFile instanceof eZMultiBinaryFile){
+                        throw new InvalidInputException('Invalid already stored file info', $identifier, $item);
+                    }
+                }
 
                 if (!isset($item['filename'])) {
                     throw new InvalidInputException('Missing filename', $identifier, $item);
