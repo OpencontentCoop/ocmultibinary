@@ -229,6 +229,17 @@ class OCMultiBinaryType extends eZDataType
     {
         self::checkFileUploads();
 
+        if (
+            $contentObjectAttribute->validateIsRequired()
+            && eZMultiBinaryFile::countByIdAndVersion(
+                $contentObjectAttribute->attribute('id'),
+                $contentObjectAttribute->attribute('version')
+            ) === 0
+        ){
+            $contentObjectAttribute->setValidationError( ezpI18n::tr( 'kernel/classes/datatypes', 'A valid file is required.' ) );
+            return eZInputValidator::STATE_INVALID;
+        }
+
         return eZInputValidator::STATE_ACCEPTED;
     }
 

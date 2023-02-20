@@ -127,6 +127,20 @@ class eZMultiBinaryFile extends eZBinaryFile
         }
     }
 
+    static function countByIdAndVersion($id, $version = null)
+    {
+        if ($version == null) {
+            return (int)eZPersistentObject::count(eZMultiBinaryFile::definition(), [
+                'contentobject_attribute_id' => $id
+            ]);
+        } else {
+            return (int)eZPersistentObject::count(eZMultiBinaryFile::definition(), [
+                'contentobject_attribute_id' => $id,
+                'version' => $version
+            ]);
+        }
+    }
+
     static function fetchByFileName($filename, $version = null, $asObject = true)
     {
         if ($version == null) {
