@@ -6,12 +6,13 @@
 	{if $groups_count|eq(1)}
 		<div class="row mx-lg-n3">
 			{foreach $groups as $group}
-				{if $group|ne('')}
+				{def $file_list = ocmultibinary_list_by_group($attribute, $group)}
+				{if and($group|ne(''), $file_list|count()|gt(0))}
 				<div class="col-12 px-lg-3">
 					<h6 class="no_toc">{$group|wash()}</h6>
 				</div>
 				{/if}
-				{foreach ocmultibinary_list_by_group($attribute, $group) as $file}
+				{foreach $file_list as $file}
 				 <div class="col-md-6 px-lg-3 pb-lg-3">
 					<div class="card card-teaser shadow p-4 mt-3 rounded border">
 						{display_icon('it-clip', 'svg', 'icon')}
@@ -29,6 +30,7 @@
 					</div>
 				</div>
 				{/foreach}
+				{undef $file_list}
 			{/foreach}
 		</div>
 	{else}
