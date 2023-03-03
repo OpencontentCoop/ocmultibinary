@@ -48,13 +48,14 @@
 		{/run-once}
 		<div class="collapse-div collapse-left-icon my-4" role="tablist">
 			{foreach $groups as $index => $group}
+				{def $file_list = ocmultibinary_list_by_group($attribute, $group)}
+				{if or($group|eq(''), $file_list|count()|eq(0))}{skip}{/if}
 				<div class="collapse-header" id="heading-{$attribute.id}-{$index}">
 					<button data-toggle="collapse" data-target="#collapse-{$attribute.id}-{$index}" aria-expanded="false" aria-controls="collapse-{$attribute.id}-{$index}">
 						{$group|wash()}
 					</button>
 				</div>
 				<div id="collapse-{$attribute.id}-{$index}" class="collapse" role="tabpanel" aria-labelledby="heading-{$attribute.id}-{$index}">
-					{def $file_list = ocmultibinary_list_by_group($attribute, $group)}
 					<div class="collapse-body{if count($file_list)|gt(3)} multibinary-search{/if}">
 						<div class="it-list-wrapper">
 							{if count($file_list)|gt(3)}

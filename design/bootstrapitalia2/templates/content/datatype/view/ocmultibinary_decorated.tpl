@@ -12,7 +12,7 @@
 					<h6 class="no_toc">{$group|wash()}</h6>
 				</div>
 				{/if}
-				{foreach ocmultibinary_list_by_group($attribute, $group) as $file}
+				{foreach $file_list as $file}
 				 <div class="col-md-6 px-lg-3 pb-lg-3">
 					<div class="card card-teaser shadow p-4 mt-3 rounded border">
 						{display_icon('it-clip', 'svg', 'icon')}
@@ -48,14 +48,15 @@
 		{/run-once}
 		<div class="accordion my-4 font-sans-serif" role="tablist">
 			{foreach $groups as $index => $group}
-			<div class="accordion-item">
+				{def $file_list = ocmultibinary_list_by_group($attribute, $group)}
+				{if or($group|eq(''), $file_list|count()|eq(0))}{skip}{/if}
+				<div class="accordion-item">
 				<h2 class="accordion-header" id="heading-{$attribute.id}-{$index}">
 					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{$attribute.id}-{$index}" aria-expanded="false" aria-controls="collapse-{$attribute.id}-{$index}">
 						{$group|wash()}
 					</button>
 				</h2>
 				<div id="collapse-{$attribute.id}-{$index}" class="accordion-collapse collapse" role="region" aria-labelledby="heading-{$attribute.id}-{$index}">
-					{def $file_list = ocmultibinary_list_by_group($attribute, $group)}
 					<div class="accordion-body pb-2{if count($file_list)|gt(3)} multibinary-search{/if}">
 							{if count($file_list)|gt(3)}
 							<div class="form-group mb-4">
