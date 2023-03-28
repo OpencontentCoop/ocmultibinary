@@ -16,10 +16,25 @@ if ( isset(  $Params['Version'] ) && is_numeric( $Params['Version'] ) )
 else
      $version = $currentVersion;
 
+$isCurrentUserDraft = $contentObject->attribute( 'status' ) == eZContentObject::STATUS_DRAFT && eZUser::currentUserID() == $contentObject->attribute( 'owner_id' );
+
 /** @var eZContentObjectAttribute $contentObjectAttribute */
 $contentObjectAttribute = eZContentObjectAttribute::fetch( $contentObjectAttributeID, $version, true );
 if ( !is_object( $contentObjectAttribute ) )
 {
+    if ($version !== $currentVersion && !$isCurrentUserDraft){
+        $contentObjectAttribute = eZContentObjectAttribute::fetch( $contentObjectAttributeID, $currentVersion, true );
+        if ($contentObjectAttribute instanceof eZContentObjectAttribute && $contentObject->attribute( 'can_read' )){
+            $viewParameters = $Module->ViewParameters;
+            $viewParameters[2] = 'c';
+            $Module->redirectModule(
+                $Module,
+                $Module->currentView(),
+                $viewParameters
+            );
+            return;
+        }
+    }
     return $Module->handleError( eZError::KERNEL_NOT_AVAILABLE, 'kernel' );
 }
 $contentObjectIDAttr = $contentObjectAttribute->attribute( 'contentobject_id' );
@@ -27,8 +42,6 @@ if ( $contentObjectID != $contentObjectIDAttr or !$contentObject->attribute( 'ca
 {
     return $Module->handleError( eZError::KERNEL_ACCESS_DENIED, 'kernel' );
 }
-
-$isCurrentUserDraft = $contentObject->attribute( 'status' ) == eZContentObject::STATUS_DRAFT && eZUser::currentUserID() == $contentObject->attribute( 'owner_id' );
 
 // Get locations.
 $nodeAssignments = $contentObject->attribute( 'assigned_nodes' );
