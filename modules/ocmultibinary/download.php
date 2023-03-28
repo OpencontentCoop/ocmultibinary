@@ -16,6 +16,16 @@ if ( isset(  $Params['Version'] ) && is_numeric( $Params['Version'] ) )
 else
      $version = $currentVersion;
 
+function redirectToCurrentVersion(eZModule $Module){
+    $viewParameters = $Module->ViewParameters;
+    $viewParameters[2] = 'c';
+    $Module->redirectModule(
+        $Module,
+        $Module->currentView(),
+        $viewParameters
+    );
+}
+
 $isCurrentUserDraft = $contentObject->attribute( 'status' ) == eZContentObject::STATUS_DRAFT && eZUser::currentUserID() == $contentObject->attribute( 'owner_id' );
 
 /** @var eZContentObjectAttribute $contentObjectAttribute */
@@ -25,13 +35,7 @@ if ( !is_object( $contentObjectAttribute ) )
     if ($version !== $currentVersion && !$isCurrentUserDraft){
         $contentObjectAttribute = eZContentObjectAttribute::fetch( $contentObjectAttributeID, $currentVersion, true );
         if ($contentObjectAttribute instanceof eZContentObjectAttribute && $contentObject->attribute( 'can_read' )){
-            $viewParameters = $Module->ViewParameters;
-            $viewParameters[2] = 'c';
-            $Module->redirectModule(
-                $Module,
-                $Module->currentView(),
-                $viewParameters
-            );
+            redirectToCurrentVersion($Module);
             return;
         }
     }
@@ -69,6 +73,7 @@ foreach ( $nodeAssignments as $nodeAssignment )
         break;
     }
 }
+
 if ( !$canAccess )
     return $Module->handleError( eZError::KERNEL_NOT_AVAILABLE, 'kernel' );
 
@@ -78,8 +83,15 @@ if ( $version != $currentVersion )
 {
     /** @var eZContentObjectVersion $versionObj */
     $versionObj = eZContentObjectVersion::fetchVersion( $version, $contentObjectID );
-    if ( is_object( $versionObj ) and !$versionObj->canVersionRead() )
-        return $Module->handleError( eZError::KERNEL_NOT_AVAILABLE, 'kernel' );
+    if ( is_object( $versionObj )) {
+        if (!$versionObj->canVersionRead() && !$isCurrentUserDraft){
+            redirectToCurrentVersion($Module);
+            return;
+        }
+        if (!$versionObj->canVersionRead()) {
+            return $Module->handleError(eZError::KERNEL_NOT_AVAILABLE, 'kernel');
+        }
+    }
 }
 
 
@@ -97,7 +109,7 @@ $result = $fileHandler->handleFileDownload( $contentObject, $contentObjectAttrib
 if ( $result == eZBinaryFileHandler::RESULT_UNAVAILABLE )
 {
     eZDebug::writeError( 'The specified file could not be found.' );
-    return $Module->handleError( eZError::KERNEL_NOT_AVAILABLE, 'kernel' );
+    return $Module->handleError( eZError::KERNEL_NOT_FOUND, 'kernel' );
 }
 
 ?>
