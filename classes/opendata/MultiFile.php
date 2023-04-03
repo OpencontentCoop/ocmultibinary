@@ -37,7 +37,7 @@ class OCMultiBinaryOpendataConverter extends File
                     . '/' . $attribute->attribute('version')
                     . '/' . $file->attribute('filename')
                     . '/file'
-                    . '/' . $file->attribute('original_filename');
+                    . '/' . urlencode($file->attribute('original_filename'));
                 eZURI::transformURI($url, false, 'full');
 
                 $item = array(
