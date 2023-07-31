@@ -19,12 +19,12 @@
 						<div class="card-body">
 						  <h5 class="card-title">
 							<a class="stretched-link" href={concat( 'ocmultibinary/download/', $attribute.contentobject_id, '/', $attribute.id,'/', $attribute.version , '/', $file.filename ,'/file/', $file.original_filename|urlencode )|ezurl}>
-								{if $file.display_name|ne('')}{$file.display_name|wash( xhtml )}{else}{$file.original_filename|clean_filename()|wash( xhtml )}{/if}
+								{if $file.display_name|ne('')}{$file.display_name|clean_filename()|wash( xhtml )}{else}{$file.original_filename|clean_filename()|wash( xhtml )}{/if}
 							</a>
 						  {if $file.display_text|ne('')}
 							  <small class="d-block my-2">{$file.display_text|wash( xhtml )}</small>
 						  {/if}
-							<small class="d-block">(File {$file.mime_type|explode('application/')|implode('')} {$file.filesize|si( byte )})</small>
+							<small class="d-block" title="{$file.mime_type|wash()}"> (File {$file.mime_type|explode('application/')|implode('')|shorten(20)} {$file.filesize|si( byte )})</small>
 						  </h5>
 						</div>
 					</div>
@@ -80,12 +80,12 @@
 												<span class="list-item-title-icon-wrapper">
 													{display_icon('it-clip', 'svg', 'icon')}
 													<span class="list-item">
-														{if $file.display_name|ne('')}{$file.display_name|wash( xhtml )}{else}{$file.original_filename|clean_filename()|wash( xhtml )}{/if}
+														{if $file.display_name|ne('')}{$file.display_name|clean_filename()|wash( xhtml )}{else}{$file.original_filename|clean_filename()|wash( xhtml )}{/if}
 														<em>
-															File {$file.mime_type|explode('application/')|implode('')} {$file.filesize|si( byte )}
-														{if $file.display_text|ne('')}
-															<small class="d-block my-2">{$file.display_text|wash( xhtml )}</small>
-														{/if}
+															<small title="{$file.mime_type|wash()}"> - File {$file.mime_type|explode('application/')|implode('')|shorten(20)} {$file.filesize|si( byte )}</small>
+															{if $file.display_text|ne('')}
+																<small class="d-block my-2">{$file.display_text|wash( xhtml )}</small>
+															{/if}
 														</em>
 													</span>
 												</span>
