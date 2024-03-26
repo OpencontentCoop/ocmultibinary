@@ -30,12 +30,10 @@ class OCMultiBinaryOpendataConverter extends File
             $files = $attribute->content();
             $data = array();
             foreach ($files as $file) {
-
-
                 $url = 'ocmultibinary/download/' . $attribute->attribute('contentobject_id')
                     . '/' . $attribute->attribute('id')
                     . '/' . $attribute->attribute('version')
-                    . '/' . $file->attribute('filename')
+                    . '/' . urlencode($file->attribute('filename'))
                     . '/file'
                     . '/' . urlencode($file->attribute('original_filename'));
                 eZURI::transformURI($url, false, 'full');
