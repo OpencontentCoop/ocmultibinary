@@ -208,10 +208,10 @@ class OCMultiBinaryType extends eZDataType
                 eZAppendWarningItem(array(
                     'error' => array(
                         'type' => 'kernel',
-                        'number' => eZError::KERNEL_NOT_AVAILABLE
+                        'number' => eZError::KERNEL_NOT_AVAILABLE,
                     ),
                     'text' => ezpI18n::tr('kernel/classes/datatypes',
-                        'File uploading is not enabled. Please contact the site administrator to enable it.')
+                        'File uploading is not enabled. Please contact the site administrator to enable it.'),
                 ));
                 $GLOBALS['eZBinaryFileTypeWarningAdded'] = true;
             }
@@ -261,17 +261,19 @@ class OCMultiBinaryType extends eZDataType
             $storedDecorations = self::parseDecorations($contentObjectAttribute);
             foreach ($storedDecorations as $index => $storedDecoration){
                 $fileName = $storedDecoration['original_filename'];
-                if (isset($displayNames[$fileName])){
-                    $storedDecorations[$index]['display_name'] = $displayNames[$fileName];
+                $buggedPos = strpos($fileName, ']');
+                $fileNameAlt = $buggedPos !== false ? substr($fileName, 0, $buggedPos) : $fileName;
+                if (isset($displayNames[$fileName]) || isset($displayNames[$fileNameAlt])){
+                    $storedDecorations[$index]['display_name'] = $displayNames[$fileName] ?? $displayNames[$fileNameAlt];
                 }
-                if (isset($displayGroups[$fileName])){
-                    $storedDecorations[$index]['display_group'] = $displayGroups[$fileName];
+                if (isset($displayGroups[$fileName]) || isset($displayGroups[$fileNameAlt])){
+                    $storedDecorations[$index]['display_group'] = $displayGroups[$fileName] ?? $displayGroups[$fileNameAlt];
                 }
-                if (isset($displayOrders[$fileName])){
-                    $storedDecorations[$index]['display_order'] = $displayOrders[$fileName];
+                if (isset($displayOrders[$fileName]) || isset($displayOrders[$fileNameAlt])){
+                    $storedDecorations[$index]['display_order'] = $displayOrders[$fileName] ?? $displayOrders[$fileNameAlt];
                 }
-                if (isset($displayTexts[$fileName])){
-                    $storedDecorations[$index]['display_text'] = $displayTexts[$fileName];
+                if (isset($displayTexts[$fileName]) || isset($displayTexts[$fileNameAlt])){
+                    $storedDecorations[$index]['display_text'] = $displayTexts[$fileName] ?? $displayTexts[$fileNameAlt];
                 }
             }
             self::storeDecorations($contentObjectAttribute, $storedDecorations);
@@ -391,6 +393,11 @@ class OCMultiBinaryType extends eZDataType
         return true;
     }
 
+    private function cleanOriginalFileName(string $fileName): string
+    {
+        return urlencode($fileName);
+    }
+
     /**
      * @param eZContentObject $object
      * @param int $objectVersion
@@ -413,7 +420,7 @@ class OCMultiBinaryType extends eZDataType
     {
         $result = array(
             'errors' => array(),
-            'require_storage' => false
+            'require_storage' => false,
         );
 
         $binaryFiles = $this->getBinaryFiles(
@@ -478,7 +485,7 @@ class OCMultiBinaryType extends eZDataType
         $binary->setAttribute("contentobject_attribute_id", $attributeID);
         $binary->setAttribute("version", $objectVersion);
         $binary->setAttribute("filename", $destFileName);
-        $binary->setAttribute("original_filename", $fileName);
+        $binary->setAttribute("original_filename", $this->cleanOriginalFileName($fileName));
         $binary->setAttribute("mime_type", $mimeData['name']);
 
         $binary->store();
@@ -546,7 +553,7 @@ class OCMultiBinaryType extends eZDataType
     {
         $result = array(
             'errors' => array(),
-            'require_storage' => false
+            'require_storage' => false,
         );
 
         $binaryFiles = $this->getBinaryFiles(
@@ -572,7 +579,7 @@ class OCMultiBinaryType extends eZDataType
             $result['errors'][] = array(
                 'description' => ezpI18n::tr('kernel/classes/datatypes/ezbinaryfile',
                     'Failed to store file %filename. Please contact the site administrator.', null,
-                    array('%filename' => $httpFile->attribute("original_filename")))
+                    array('%filename' => $httpFile->attribute("original_filename"))),
             );
 
             return false;
@@ -581,7 +588,7 @@ class OCMultiBinaryType extends eZDataType
         $binary->setAttribute("contentobject_attribute_id", $attributeID);
         $binary->setAttribute("version", $objectVersion);
         $binary->setAttribute("filename", basename($httpFile->attribute("filename")));
-        $binary->setAttribute("original_filename", $httpFile->attribute("original_filename"));
+        $binary->setAttribute("original_filename", $this->cleanOriginalFileName($httpFile->attribute("original_filename")));
         $binary->setAttribute("mime_type", $mimeData['name']);
 
         $binary->store();
@@ -645,7 +652,7 @@ class OCMultiBinaryType extends eZDataType
             array(
                 'contentobject_attribute_id' => $objectAttribute->attribute('id'),
                 'version' => $objectAttribute->attribute('version'),
-                'filename' => $id
+                'filename' => $id,
             )
         );
 
@@ -672,7 +679,7 @@ class OCMultiBinaryType extends eZDataType
             array(
                 'contentobject_attribute_id' => $objectAttribute->attribute('id'),
                 'version' => $objectAttribute->attribute('version'),
-                'filename' => $filename
+                'filename' => $filename,
             )
         );
 
