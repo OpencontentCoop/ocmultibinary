@@ -87,7 +87,6 @@ class OCMultiBinaryOpendataConverter extends File
         if (is_array($data)) {
             foreach ($data as $item) {
 
-
                 if (!isset($item['filename'])) {
                     throw new InvalidInputException('Missing filename', $identifier, $item);
                 }
