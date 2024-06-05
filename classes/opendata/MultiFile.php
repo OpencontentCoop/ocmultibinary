@@ -92,7 +92,7 @@ class OCMultiBinaryOpendataConverter extends File
                     throw new InvalidInputException('Missing filename', $identifier, $item);
                 }
 
-                if (isset($item['url']) && !eZHTTPTool::getDataByURL(trim($item['url']), true)) {
+                if (isset($item['url']) && !File::getDataByURL(trim($item['url']), true)) {
                     throw new InvalidInputException('Url not responding', $identifier, $item);
                 }
 
