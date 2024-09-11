@@ -1085,13 +1085,23 @@ class OCMultiBinaryType extends eZDataType
 
         $decorations = self::parseDecorations($objectAttribute);
         foreach ($decorations as $index => $decoration){
-            if (isset($insertDecorations[$decoration['original_filename']])){
-                if ($insertDecorations[$decoration['original_filename']][1])
-                    $decorations[$index]['display_name'] = $insertDecorations[$decoration['original_filename']][1];
-                if ($insertDecorations[$decoration['original_filename']][2])
-                    $decorations[$index]['display_group'] = $insertDecorations[$decoration['original_filename']][2];
-                if ($insertDecorations[$decoration['original_filename']][3])
-                    $decorations[$index]['display_text'] = $insertDecorations[$decoration['original_filename']][3];
+            $names = [
+                $decoration['original_filename'],
+                urldecode($decoration['original_filename'])
+            ];
+            foreach ($names as $name) {
+                if (isset($insertDecorations[$name])) {
+                    if ($insertDecorations[$name][1]) {
+                        $decorations[$index]['display_name'] = $insertDecorations[$name][1];
+                    }
+                    if ($insertDecorations[$name][2]) {
+                        $decorations[$index]['display_group'] = $insertDecorations[$name][2];
+                    }
+                    if ($insertDecorations[$name][3]) {
+                        $decorations[$index]['display_text'] = $insertDecorations[$name][3];
+                    }
+                    break;
+                }
             }
         }
         self::storeDecorations($objectAttribute, $decorations);
