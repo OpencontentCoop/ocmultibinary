@@ -1213,7 +1213,10 @@ class OCMultiBinaryType extends eZDataType
     {
         $parts = explode('.', $filename);
         if (count($parts) > 1) {
-            array_pop($parts);
+            $extension = array_pop($parts);
+            if (!isset(eZMimeType::instance()->SuffixList[$extension])){
+                $parts[] = $extension;
+            }
         }
         $filename = implode('.', $parts);
         $filename = str_replace(array('_', '-', '+'), ' ', $filename);
