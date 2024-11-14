@@ -39,6 +39,10 @@ class OCMultiBinaryOperators
                         $decorations = OCMultiBinaryType::parseDecorations($attribute);
                         $groups = array_unique(array_column($decorations, 'display_group'));
                         sort($groups);
+                        if ($groups[0] === ''){
+                            $noName = array_shift($groups);
+                            $groups[] = $noName;
+                        }
                         $operatorValue = $groups;
                     }
                 }

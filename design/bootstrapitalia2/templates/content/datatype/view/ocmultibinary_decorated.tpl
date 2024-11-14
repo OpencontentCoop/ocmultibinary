@@ -49,11 +49,11 @@
 		<div class="accordion my-4 font-sans-serif" role="tablist">
 			{foreach $groups as $index => $group}
 				{def $file_list = ocmultibinary_list_by_group($attribute, $group)}
-				{if or($group|eq(''), $file_list|count()|eq(0))}{skip}{/if}
+				{if $file_list|count()|eq(0)}{skip}{/if}
 				<div class="accordion-item">
 				<h2 class="accordion-header" id="heading-{$attribute.id}-{$index}">
 					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{$attribute.id}-{$index}" aria-expanded="false" aria-controls="collapse-{$attribute.id}-{$index}">
-						{$group|wash()}
+						{if $group|eq('')}{'More...'|i18n('design/base')}{else}{$group|wash()}{/if}
 					</button>
 				</h2>
 				<div id="collapse-{$attribute.id}-{$index}" class="accordion-collapse collapse" role="region" aria-labelledby="heading-{$attribute.id}-{$index}">
