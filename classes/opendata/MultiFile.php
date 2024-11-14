@@ -20,7 +20,7 @@ class OCMultiBinaryOpendataConverter extends File
             'data_int' => $attribute->attribute('data_int'),
             'data_float' => $attribute->attribute('data_float'),
             'is_information_collector' => $attribute->attribute('is_information_collector'),
-            'content' => null
+            'content' => null,
         );
 
         if ($attribute instanceof eZContentObjectAttribute
@@ -40,7 +40,7 @@ class OCMultiBinaryOpendataConverter extends File
 
                 $item = array(
                     'filename' => $file->attribute('original_filename'),
-                    'url' => $url
+                    'url' => $url,
                 );
                 if ($attribute->contentClassAttribute()->attribute(OCMultiBinaryType::ALLOW_DECORATIONS_FIELD)){
                     $item['displayName'] = $file->attribute('display_name');
@@ -69,6 +69,10 @@ class OCMultiBinaryOpendataConverter extends File
                 $item['file'] = null;
             }
 
+            if (isset($item['url'])){
+                $item['url'] = self::fixUrlEncoding($item['url']);
+            }
+
             $stringValues = [$this->getTemporaryFilePath($item['filename'], $item['url'], $item['file'])];
             if (isset($item['displayName']) || isset($item['group']) || isset($item['text'])) {
                 $stringValues[] = isset($item['displayName']) ? $item['displayName'] : '';
@@ -82,14 +86,28 @@ class OCMultiBinaryOpendataConverter extends File
         return implode('|', $values);
     }
 
+    private static function fixUrlEncoding($url)
+    {
+        if (is_string($url) && strpos($url, '/file/') !== false){
+            $parts = explode('/file/', $url);
+            $file = array_pop($parts);
+            $parts[] = rawurlencode($file);
+            $url = implode('/file/', $parts);
+        }
+        return $url;
+    }
+
     public static function validate($identifier, $data, eZContentClassAttribute $attribute)
     {
         if (is_array($data)) {
             foreach ($data as $item) {
 
-
                 if (!isset($item['filename'])) {
                     throw new InvalidInputException('Missing filename', $identifier, $item);
+                }
+
+                if (isset($item['url'])){
+                    $item['url'] = self::fixUrlEncoding($item['url']);
                 }
 
                 if (isset($item['url']) && !File::getDataByURL(trim($item['url']), true)) {
@@ -116,9 +134,9 @@ class OCMultiBinaryOpendataConverter extends File
                 array(
                     'url' => 'public http uri',
                     'file' => 'base64 encoded file (url alternative)',
-                    'filename' => 'string'
-                )
-            )
+                    'filename' => 'string',
+                ),
+            ),
         );
     }
 
