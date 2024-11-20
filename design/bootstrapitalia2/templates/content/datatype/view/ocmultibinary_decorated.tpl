@@ -46,7 +46,7 @@
 			})
 		{/literal}</script>
 		{/run-once}
-		<div class="accordion my-4 font-sans-serif" role="tablist">
+		<div class="cmp-accordion accordion my-4 font-sans-serif" role="tablist">
 			{foreach $groups as $index => $group}
 				{def $file_list = ocmultibinary_list_by_group($attribute, $group)}
 				{if $file_list|count()|eq(0)}{skip}{/if}
