@@ -145,11 +145,11 @@
     </message>
     <message>
       <source>File upload aborted</source>
-      <translation>File upload stopped</translation>
+      <translation>File upload interrupted</translation>
     </message>
     <message>
       <source>Failed to resize image</source>
-      <translation>Failed to resize image</translation>
+      <translation>Image cannot be resized</translation>
     </message>
   </context>
   <context>
