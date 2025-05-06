@@ -23,3 +23,10 @@
            name="ContentClass_ocmultibinary_allow_decoration_{$class_attribute.id}"
            {if $class_attribute.data_int3|eq(1)}checked="checked"{/if} value="1"/>
 </div>
+<div class="block">
+    <label for="ContentClass_ocmultibinary_group_suggestions_{$class_attribute.id}">
+        {'Grouping tips (one per line)'|i18n( 'design/standard/class/datatype' )}:
+    </label>
+    <textarea class="box" rows="5" id="ContentClass_ocmultibinary_group_suggestions_{$class_attribute.id}"
+              name="ContentClass_ocmultibinary_group_suggestions_{$class_attribute.id}">{$class_attribute.data_text_i18n|wash()}</textarea>
+</div>

@@ -11,3 +11,9 @@
     <label>{'Enable name customisation'|i18n( 'design/standard/class/datatype' )}:</label>
     <p>{$class_attribute.data_int3}</p>
 </div>
+<div class="block">
+    <label>
+        {'Grouping tips (one per line)'|i18n( 'design/standard/class/datatype' )}:
+    </label>
+    {$class_attribute.data_text_i18n|wash()|nl2br}
+</div>

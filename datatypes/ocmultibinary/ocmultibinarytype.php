@@ -10,6 +10,8 @@ class OCMultiBinaryType extends eZDataType
     const MAX_NUMBER_OF_FILES_VARIABLE = '_ocmultibinary_max_number_of_files_';
     const ALLOW_DECORATIONS_VARIABLE = '_ocmultibinary_allow_decoration_';
 
+    const GROUP_TIPS_VARIABLE = '_ocmultibinary_group_suggestions_';
+
     const DATA_TYPE_STRING = 'ocmultibinary';
 
     function __construct()
@@ -713,18 +715,25 @@ class OCMultiBinaryType extends eZDataType
             $filesizeValue = $http->postVariable($filesizeName);
             $classAttribute->setAttribute(self::MAX_FILESIZE_FIELD, $filesizeValue);
         }
+
         $filenumberName = $base . self::MAX_NUMBER_OF_FILES_VARIABLE . $classAttribute->attribute('id');
         if ($http->hasPostVariable($filenumberName)) {
             $filenumberValue = $http->postVariable($filenumberName);
             $classAttribute->setAttribute(self::MAX_NUMBER_OF_FILES_FIELD, $filenumberValue);
         }
-        if ($http->hasPostVariable($filesizeName)) {
-            $allowDecorationName = $base . self::ALLOW_DECORATIONS_VARIABLE . $classAttribute->attribute('id');
-            if ($http->hasPostVariable($allowDecorationName)) {
-                $classAttribute->setAttribute(self::ALLOW_DECORATIONS_FIELD, 1);
-            } else {
-                $classAttribute->setAttribute(self::ALLOW_DECORATIONS_FIELD, 0);
-            }
+
+        $allowDecorationName = $base . self::ALLOW_DECORATIONS_VARIABLE . $classAttribute->attribute('id');
+        if ($http->hasPostVariable($allowDecorationName)) {
+            $classAttribute->setAttribute(self::ALLOW_DECORATIONS_FIELD, 1);
+        } else {
+            $classAttribute->setAttribute(self::ALLOW_DECORATIONS_FIELD, 0);
+        }
+
+        $groupTipsName = $base . self::GROUP_TIPS_VARIABLE . $classAttribute->attribute('id');
+        if ($http->hasPostVariable($groupTipsName)) {
+            $classAttribute->setDataTextI18n($http->postVariable($groupTipsName), $classAttribute->editLocale());
+        } else {
+            $classAttribute->setDataTextI18n('', $classAttribute->editLocale());
         }
     }
 
