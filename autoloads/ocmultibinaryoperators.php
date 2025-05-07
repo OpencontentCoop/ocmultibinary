@@ -36,8 +36,12 @@ class OCMultiBinaryOperators
                     $operatorValue = [];
                     $attribute = $namedParameters['attribute'];
                     if ($attribute instanceof eZContentObjectAttribute) {
-                        $decorations = OCMultiBinaryType::parseDecorations($attribute);
-                        $groups = array_unique(array_column($decorations, 'display_group'));
+                        $groups = [];
+                        $files = $attribute->content();
+                        foreach ($files as $file) {
+                            $groups[] = $file->attribute('display_group');
+                        }
+                        $groups = array_unique($groups);
                         sort($groups);
                         if ($groups[0] === ''){
                             $noName = array_shift($groups);

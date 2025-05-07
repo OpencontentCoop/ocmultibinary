@@ -60,24 +60,27 @@ class OCMultiBinaryOpendataConverter extends File
     {
         $values = array();
         foreach ($data as $item) {
+            if (isset($item['stored'])) {
+                $stringValues = [$item['stored']];
+            }else {
+                if (!isset($item['url'])) {
+                    $item['url'] = null;
+                }
 
-            if (!isset($item['url'])) {
-                $item['url'] = null;
+                if (!isset($item['file'])) {
+                    $item['file'] = null;
+                }
+
+                if (isset($item['url'])) {
+                    $item['url'] = self::fixUrlEncoding($item['url']);
+                }
+
+                $stringValues = [$this->getTemporaryFilePath($item['filename'], $item['url'], $item['file'])];
             }
-
-            if (!isset($item['file'])) {
-                $item['file'] = null;
-            }
-
-            if (isset($item['url'])){
-                $item['url'] = self::fixUrlEncoding($item['url']);
-            }
-
-            $stringValues = [$this->getTemporaryFilePath($item['filename'], $item['url'], $item['file'])];
             if (isset($item['displayName']) || isset($item['group']) || isset($item['text'])) {
-                $stringValues[] = isset($item['displayName']) ? $item['displayName'] : '';
-                $stringValues[] = isset($item['group']) ? $item['group'] : '';
-                $stringValues[] = isset($item['text']) ? $item['text'] : '';
+                $stringValues[] = $item['displayName'] ?? '';
+                $stringValues[] = $item['group'] ?? '';
+                $stringValues[] = $item['text'] ?? '';
             }
 
             $values[] = implode('##', $stringValues);
@@ -101,6 +104,22 @@ class OCMultiBinaryOpendataConverter extends File
     {
         if (is_array($data)) {
             foreach ($data as $item) {
+
+                if (isset($item['stored'])){
+                    $info = OCMultiBinaryType::isAlreadyStoredFileId($item['stored']);
+                    $binaryFile = eZPersistentObject::fetchObject(eZMultiBinaryFile::definition(),
+                        null,
+                        array(
+                            'contentobject_attribute_id' => $info['id'],
+                            'version' => $info['version'],
+                            'original_filename' => $info['filename'],
+                        )
+                    );
+                    if (!$binaryFile instanceof eZMultiBinaryFile){
+                        throw new InvalidInputException('Invalid already stored file info', $identifier, $item);
+                    }
+                }
+
 
                 if (!isset($item['filename'])) {
                     throw new InvalidInputException('Missing filename', $identifier, $item);
