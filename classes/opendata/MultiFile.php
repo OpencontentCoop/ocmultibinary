@@ -91,7 +91,11 @@ class OCMultiBinaryOpendataConverter extends File
 
     private static function fixUrlEncoding($url)
     {
-        if (is_string($url) && strpos($url, '/file/') !== false){
+        if (is_string($url)
+            && strpos($url, '/file/') !== false
+            && (strpos($url, 'ocmultibinary/download') !== false
+                || strpos($url, 'content/download') !== false)
+        ) {
             $parts = explode('/file/', $url);
             $file = array_pop($parts);
             $parts[] = rawurlencode($file);
@@ -130,7 +134,7 @@ class OCMultiBinaryOpendataConverter extends File
                 }
 
                 if (isset($item['url']) && !File::getDataByURL(trim($item['url']), true)) {
-                    throw new InvalidInputException('Url not responding', $identifier, $item);
+                    throw new InvalidInputException('Url ' . trim($item['url']) . ' not responding', $identifier, $item);
                 }
 
                 if (isset($item['file'])
