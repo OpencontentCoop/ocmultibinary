@@ -1049,13 +1049,11 @@ class OCMultiBinaryType extends eZDataType
     function fromString($objectAttribute, $string)
     {
         $version = $objectAttribute->attribute('version');
-        $this->deleteStoredObjectAttribute($objectAttribute, $version);
-
-        $filePaths = explode('|', $string);
+        $filePaths = !empty($string) ? explode('|', $string) : [];
         if (empty($filePaths)) {
             return true;
         }
-
+        $this->deleteStoredObjectAttribute($objectAttribute, $version);
         $errors = array();
         $insertFileCount = 0;
         $requestFileCount = count($filePaths);
