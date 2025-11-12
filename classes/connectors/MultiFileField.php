@@ -174,7 +174,7 @@ class MultiFileField extends UploadFieldConnector implements CleanableFieldConne
         }
     }
 
-    private function doPreview()
+    protected function doPreview()
     {
         $fileName = $this->getHelper()->getParameter('preview');
         $filePath = $this->getUploadDir() . $fileName;
@@ -211,7 +211,7 @@ class MultiFileField extends UploadFieldConnector implements CleanableFieldConne
         return $group == 'image';
     }
 
-    private function doDelete()
+    protected function doDelete()
     {
         $fileName = $this->getHelper()->getParameter('delete');
 
@@ -238,7 +238,7 @@ class MultiFileField extends UploadFieldConnector implements CleanableFieldConne
         ];
     }
 
-    private function doUpload($paramNamePrefix)
+    protected function doUpload($paramNamePrefix)
     {
         $paramName = $this->getIdentifier() . $this->getUploadParamNameSuffix();
         if ($paramNamePrefix) {
@@ -326,7 +326,7 @@ class MultiFileField extends UploadFieldConnector implements CleanableFieldConne
         return ['files' => $files];
     }
 
-    private function getThumbnailUrl($filename)
+    protected function getThumbnailUrl($filename)
     {
         $thumbnailUrl = $this->getServiceUrl('upload', ['preview' => $filename]);
         $filePath = $this->getUploadDir() . $filename;
