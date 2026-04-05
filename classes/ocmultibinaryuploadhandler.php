@@ -42,6 +42,7 @@ class OCMultiBinaryUploadHandler
 
     function __construct($options = null, $initialize = true, $error_messages = null)
     {
+        // @phpstan-ignore property.notFound
         $this->response = array();
         $this->options = array(
             'script_url' => $this->get_full_url() . '/' . basename($this->get_server_var('SCRIPT_NAME')),
@@ -448,6 +449,7 @@ class OCMultiBinaryUploadHandler
                 $file->error = $this->get_error_message('max_width');
                 return false;
             }
+            // @phpstan-ignore variable.undefined
             if ($max_height && $img_height > $max_height) {
                 $file->error = $this->get_error_message('max_height');
                 return false;
@@ -456,6 +458,7 @@ class OCMultiBinaryUploadHandler
                 $file->error = $this->get_error_message('min_width');
                 return false;
             }
+            // @phpstan-ignore variable.undefined
             if ($min_height && $img_height < $min_height) {
                 $file->error = $this->get_error_message('min_height');
                 return false;
@@ -1309,6 +1312,7 @@ class OCMultiBinaryUploadHandler
 
     public function generate_response($content, $print_response = true)
     {
+        // @phpstan-ignore property.notFound
         $this->response = $content;
         if ($print_response) {
             $json = json_encode($content);
@@ -1334,6 +1338,7 @@ class OCMultiBinaryUploadHandler
 
     public function get_response()
     {
+        // @phpstan-ignore property.notFound
         return $this->response;
     }
 
