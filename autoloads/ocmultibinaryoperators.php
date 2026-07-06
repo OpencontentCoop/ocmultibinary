@@ -39,7 +39,11 @@ class OCMultiBinaryOperators
                         $groups = [];
                         $files = $attribute->content();
                         foreach ($files as $file) {
-                            $groups[] = $file->attribute('display_group');
+                            // Un file senza decorazione salvata ha display_group non
+                            // inizializzato (null): normalizzarlo a stringa evita che
+                            // finisca fuori dal bucket "senza nome" ('') per un confronto
+                            // stretto più avanti.
+                            $groups[] = (string)$file->attribute('display_group');
                         }
                         $groups = array_unique($groups);
                         sort($groups);
@@ -57,11 +61,25 @@ class OCMultiBinaryOperators
                     $group = $namedParameters['group'];
                     $fileList = [];
                     foreach ($attribute->content() as $file) {
-                        if ($file->attribute('display_group') == $group) {
-                            $fileList[$file->attribute('display_order')] = $file;
+                        if ((string)$file->attribute('display_group') === (string)$group) {
+                            $fileList[] = $file;
                         }
                     }
-                    ksort($fileList);
+                    // display_order non è garantito: un file senza decorazione salvata
+                    // ha valore null. Usarlo come chiave d'array (come prima) fa
+                    // collassare più file sulla stessa chiave (null diventa '') e
+                    // solo l'ultimo processato resta visibile. Ordinare con usort e
+                    // mandare in coda gli ordini mancanti evita che un file scompaia.
+                    usort($fileList, function ($a, $b) {
+                        $orderA = $a->attribute('display_order');
+                        $orderB = $b->attribute('display_order');
+                        $orderA = $orderA === null ? PHP_INT_MAX : (int)$orderA;
+                        $orderB = $orderB === null ? PHP_INT_MAX : (int)$orderB;
+                        if ($orderA === $orderB) {
+                            return 0;
+                        }
+                        return $orderA < $orderB ? -1 : 1;
+                    });
                     $operatorValue = $fileList;
                 }
                 break;
