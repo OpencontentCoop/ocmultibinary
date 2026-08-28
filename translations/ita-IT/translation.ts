@@ -151,6 +151,46 @@
       <source>Failed to resize image</source>
       <translation>Impossibile ridimensionare l'immagine</translation>
     </message>
+    <message>
+      <source>The following files need your attention before uploading:</source>
+      <translation>I seguenti file richiedono la tua attenzione prima del caricamento:</translation>
+    </message>
+    <message>
+      <source>Same name as an existing attachment, but different size.</source>
+      <translation>Stesso nome di un allegato già presente ma dimensione diversa.</translation>
+    </message>
+    <message>
+      <source>Replace</source>
+      <translation>Sostituisci</translation>
+    </message>
+    <message>
+      <source>Keep both</source>
+      <translation>Mantieni entrambi</translation>
+    </message>
+    <message>
+      <source>Same size as an existing attachment, but different name, it could be the same file.</source>
+      <translation>Stessa dimensione di un allegato già presente ma nome diverso, potrebbe trattarsi dello stesso file.</translation>
+    </message>
+    <message>
+      <source>Upload anyway</source>
+      <translation>Carica comunque</translation>
+    </message>
+    <message>
+      <source>Don't upload</source>
+      <translation>Non caricare</translation>
+    </message>
+    <message>
+      <source>Same name and size as an existing attachment, it could be the same file.</source>
+      <translation>Stesso nome e stessa dimensione di un allegato già presente, potrebbe trattarsi dello stesso file.</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Annulla</translation>
+    </message>
+    <message>
+      <source>Confirm</source>
+      <translation>Conferma</translation>
+    </message>
   </context>
   <context>
     <name>kernel/classes/datatypes</name>

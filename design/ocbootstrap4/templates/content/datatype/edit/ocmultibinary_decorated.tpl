@@ -4,11 +4,11 @@
 
         {if $upload_conflict_check_enabled}
         <div id="upload-conflict-anchor-{$attribute.id}" class="upload-conflict-anchor" tabindex="-1">
-            <div class="upload-conflict-box alert alert-warning mb-3" style="display:none;" role="alert">
+            <div class="upload-conflict-box alert alert-warning mb-4" style="display:none;" role="alert">
                 <p class="mb-2">
                     <strong>{'The following files need your attention before uploading:'|i18n( 'extension/ocmultibinary' )}</strong>
                 </p>
-                <div class="upload-conflict-box-list" style="max-height: 220px; overflow-y: auto;"></div>
+                <div class="upload-conflict-box-list"></div>
                 <div class="upload-conflict-box-actions mt-2 text-right">
                     <button type="button" class="btn btn-sm btn-outline-secondary upload-conflict-box-cancel">
                         {'Cancel'|i18n( 'extension/ocmultibinary' )}
@@ -25,8 +25,8 @@
         <template class="upload-conflict-row-template" data-reason="name">
             <div class="upload-conflict-row d-flex align-items-center justify-content-between py-1 border-bottom">
                 <span class="upload-conflict-row-message">
-                    <span class="upload-conflict-row-name"></span> &mdash;
-                    {'a file with this name is already attached.'|i18n( 'extension/ocmultibinary' )}
+                    <span class="upload-conflict-row-name d-block" style="font-size: 1.1em;"></span>
+                    <em class="d-block">{'Same name as an existing attachment, but different size.'|i18n( 'extension/ocmultibinary' )}</em>
                 </span>
                 <span class="upload-conflict-row-choice text-nowrap">
                     <div class="form-check form-check-inline mr-3 mb-0">
@@ -47,8 +47,8 @@
         <template class="upload-conflict-row-template" data-reason="size">
             <div class="upload-conflict-row d-flex align-items-center justify-content-between py-1 border-bottom">
                 <span class="upload-conflict-row-message">
-                    <span class="upload-conflict-row-name"></span> &mdash;
-                    {'same size as an existing attachment, it could be the same file.'|i18n( 'extension/ocmultibinary' )}
+                    <span class="upload-conflict-row-name d-block" style="font-size: 1.1em;"></span>
+                    <em class="d-block">{'Same size as an existing attachment, but different name, it could be the same file.'|i18n( 'extension/ocmultibinary' )}</em>
                 </span>
                 <span class="upload-conflict-row-choice text-nowrap">
                     <div class="form-check form-check-inline mr-3 mb-0">
@@ -63,12 +63,16 @@
             </div>
         </template>
 
-        {* Reason "both": same name AND same size - almost certainly the identical file. *}
+        {* Reason "both": same name AND same size - almost certainly the identical file, but
+           same size is only a heuristic, not a guarantee of identical content. Uses the same
+           "Replace"/"Keep both" labels as reason "name": the server-side effect is identical
+           in both cases (the existing binary is deleted server-side), so the label must be
+           equally honest about it here. *}
         <template class="upload-conflict-row-template" data-reason="both">
             <div class="upload-conflict-row d-flex align-items-center justify-content-between py-1 border-bottom">
                 <span class="upload-conflict-row-message">
-                    <span class="upload-conflict-row-name"></span> &mdash;
-                    {'identical to an existing attachment (same name and size).'|i18n( 'extension/ocmultibinary' )}
+                    <span class="upload-conflict-row-name d-block" style="font-size: 1.1em;"></span>
+                    <em class="d-block">{'Same name and size as an existing attachment, it could be the same file.'|i18n( 'extension/ocmultibinary' )}</em>
                 </span>
                 <span class="upload-conflict-row-choice text-nowrap">
                     <div class="form-check form-check-inline mr-3 mb-0">
