@@ -1,5 +1,38 @@
 {default attribute_base=ContentObjectAttribute}
+    {def $upload_conflict_check_enabled = ezini('NameConflictSettings', 'EnableUploadConflictCheck', 'ocmultibinary.ini')|eq('enabled')}
     <div id="uploader_{$attribute_base}_data_multibinaryfilename_{$attribute.id}">
+
+        {if $upload_conflict_check_enabled}
+        <div class="upload-conflict-box alert alert-warning mb-3" style="display:none;" role="alert">
+            <p class="mb-2">
+                <strong>{'The following files have the same name as an attachment already present. Choose whether to replace it or keep both:'|i18n( 'extension/ocmultibinary' )}</strong>
+            </p>
+            <div class="upload-conflict-box-list" style="max-height: 220px; overflow-y: auto;"></div>
+            <div class="upload-conflict-box-actions mt-2 text-right">
+                <button type="button" class="btn btn-sm btn-outline-secondary upload-conflict-box-cancel">
+                    {'Cancel'|i18n( 'extension/ocmultibinary' )}
+                </button>
+                <button type="button" class="btn btn-sm btn-warning upload-conflict-box-confirm">
+                    {'Confirm'|i18n( 'extension/ocmultibinary' )}
+                </button>
+            </div>
+        </div>
+        <template class="upload-conflict-row-template">
+            <div class="upload-conflict-row d-flex align-items-center justify-content-between py-1 border-bottom">
+                <span class="upload-conflict-row-name"></span>
+                <span class="upload-conflict-row-choice text-nowrap">
+                    <label class="mr-3 mb-0">
+                        <input type="radio" class="upload-conflict-row-replace" value="replace" checked>
+                        {'Replace'|i18n( 'extension/ocmultibinary' )}
+                    </label>
+                    <label class="mb-0">
+                        <input type="radio" class="upload-conflict-row-keep" value="keep">
+                        {'Keep both'|i18n( 'extension/ocmultibinary' )}
+                    </label>
+                </span>
+            </div>
+        </template>
+        {/if}
 
         <div class="clearfix upload-file-list" data-sorturl="{concat('ocmultibinary/sort/', $attribute.id, '/', $attribute.version, '/', $attribute.language_code  )|ezurl(no)}">
             {include uri="design:content/datatype/edit/filelist_decorated.tpl" attribute=$attribute}
