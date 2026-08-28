@@ -3,7 +3,7 @@
     <div id="uploader_{$attribute_base}_data_multibinaryfilename_{$attribute.id}">
 
         {if $upload_conflict_check_enabled}
-        <div class="upload-conflict-box alert alert-warning mb-3" style="display:none;" role="alert">
+        <div id="upload-conflict-box-{$attribute.id}" class="upload-conflict-box alert alert-warning mb-3" style="display:none;" role="alert" tabindex="-1">
             <p class="mb-2">
                 <strong>{'The following files have the same name as an attachment already present. Choose whether to replace it or keep both:'|i18n( 'extension/ocmultibinary' )}</strong>
             </p>
@@ -21,14 +21,14 @@
             <div class="upload-conflict-row d-flex align-items-center justify-content-between py-1 border-bottom">
                 <span class="upload-conflict-row-name"></span>
                 <span class="upload-conflict-row-choice text-nowrap">
-                    <label class="mr-3 mb-0">
-                        <input type="radio" class="upload-conflict-row-replace" value="replace" checked>
-                        {'Replace'|i18n( 'extension/ocmultibinary' )}
-                    </label>
-                    <label class="mb-0">
-                        <input type="radio" class="upload-conflict-row-keep" value="keep">
-                        {'Keep both'|i18n( 'extension/ocmultibinary' )}
-                    </label>
+                    <div class="form-check form-check-inline mr-3 mb-0">
+                        <input class="radio-input upload-conflict-row-replace" type="radio" value="replace" checked>
+                        <label>{'Replace'|i18n( 'extension/ocmultibinary' )}</label>
+                    </div>
+                    <div class="form-check form-check-inline mb-0">
+                        <input class="radio-input upload-conflict-row-keep" type="radio" value="keep">
+                        <label>{'Keep both'|i18n( 'extension/ocmultibinary' )}</label>
+                    </div>
                 </span>
             </div>
         </template>
