@@ -46,8 +46,8 @@
                     <textarea placeholder="{'Text'|i18n( 'extension/ocmultibinary' )}" name="{$attribute_base}_display_text_{$attribute.id}[{$file.original_filename|wash( xhtml )}]" class=form-control>{$file.display_text|wash}</textarea>
                 </td>
                 <td style="vertical-align:middle">
-                    <input type="hidden" value="{$file.display_order|wash}" name="{$attribute_base}_sort_{$attribute.id}[{$file.original_filename|wash( xhtml )}]" class="sort" data-filename="{$file.original_filename|wash( xhtml )}" />
-                    <i class="fa fa-arrows pull-right"></i>
+                    <input type="hidden" value="{$file.display_order|wash}" name="{$attribute_base}_sort_{$attribute.id}[{$file.original_filename|wash( xhtml )}]" class="sort" data-filename="{$file.original_filename|wash( xhtml )}" data-filesize="{$file.filesize}" />
+                    <i class="fa fa-arrows pull-right" style="cursor: grab;"></i>
                 </td>
 
             </tr>

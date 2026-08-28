@@ -6,7 +6,7 @@
         <div id="upload-conflict-anchor-{$attribute.id}" class="upload-conflict-anchor" tabindex="-1">
             <div class="upload-conflict-box alert alert-warning mb-3" style="display:none;" role="alert">
                 <p class="mb-2">
-                    <strong>{'The following files have the same name as an attachment already present. Choose whether to replace it or keep both:'|i18n( 'extension/ocmultibinary' )}</strong>
+                    <strong>{'The following files need your attention before uploading:'|i18n( 'extension/ocmultibinary' )}</strong>
                 </p>
                 <div class="upload-conflict-box-list" style="max-height: 220px; overflow-y: auto;"></div>
                 <div class="upload-conflict-box-actions mt-2 text-right">
@@ -19,9 +19,57 @@
                 </div>
             </div>
         </div>
-        <template class="upload-conflict-row-template">
+
+        {* Reason "name": same filename as an existing attachment (possibly different content) -
+           a real replace is technically possible, since the server matches by name. *}
+        <template class="upload-conflict-row-template" data-reason="name">
             <div class="upload-conflict-row d-flex align-items-center justify-content-between py-1 border-bottom">
-                <span class="upload-conflict-row-name"></span>
+                <span class="upload-conflict-row-message">
+                    <span class="upload-conflict-row-name"></span> &mdash;
+                    {'a file with this name is already attached.'|i18n( 'extension/ocmultibinary' )}
+                </span>
+                <span class="upload-conflict-row-choice text-nowrap">
+                    <div class="form-check form-check-inline mr-3 mb-0">
+                        <input class="radio-input upload-conflict-row-replace" type="radio" value="replace" checked>
+                        <label>{'Replace'|i18n( 'extension/ocmultibinary' )}</label>
+                    </div>
+                    <div class="form-check form-check-inline mb-0">
+                        <input class="radio-input upload-conflict-row-keep" type="radio" value="keep">
+                        <label>{'Keep both'|i18n( 'extension/ocmultibinary' )}</label>
+                    </div>
+                </span>
+            </div>
+        </template>
+
+        {* Reason "size": same size as an existing attachment with a DIFFERENT name - the server
+           only matches by name, so a real replace is not possible here: this row can only let the
+           editor skip uploading this specific file, never merge it into the existing one. *}
+        <template class="upload-conflict-row-template" data-reason="size">
+            <div class="upload-conflict-row d-flex align-items-center justify-content-between py-1 border-bottom">
+                <span class="upload-conflict-row-message">
+                    <span class="upload-conflict-row-name"></span> &mdash;
+                    {'same size as an existing attachment, it could be the same file.'|i18n( 'extension/ocmultibinary' )}
+                </span>
+                <span class="upload-conflict-row-choice text-nowrap">
+                    <div class="form-check form-check-inline mr-3 mb-0">
+                        <input class="radio-input upload-conflict-row-replace" type="radio" value="replace" checked>
+                        <label>{'Upload anyway'|i18n( 'extension/ocmultibinary' )}</label>
+                    </div>
+                    <div class="form-check form-check-inline mb-0">
+                        <input class="radio-input upload-conflict-row-keep" type="radio" value="keep">
+                        <label>{"Don't upload"|i18n( 'extension/ocmultibinary' )}</label>
+                    </div>
+                </span>
+            </div>
+        </template>
+
+        {* Reason "both": same name AND same size - almost certainly the identical file. *}
+        <template class="upload-conflict-row-template" data-reason="both">
+            <div class="upload-conflict-row d-flex align-items-center justify-content-between py-1 border-bottom">
+                <span class="upload-conflict-row-message">
+                    <span class="upload-conflict-row-name"></span> &mdash;
+                    {'identical to an existing attachment (same name and size).'|i18n( 'extension/ocmultibinary' )}
+                </span>
                 <span class="upload-conflict-row-choice text-nowrap">
                     <div class="form-check form-check-inline mr-3 mb-0">
                         <input class="radio-input upload-conflict-row-replace" type="radio" value="replace" checked>
