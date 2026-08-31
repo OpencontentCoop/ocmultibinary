@@ -8,6 +8,18 @@
       <translation>Dateien auswählen</translation>
     </message>
     <message>
+      <source>Search</source>
+      <translation>Suche</translation>
+    </message>
+    <message>
+      <source>Search by file name or display name</source>
+      <translation>Suche nach Dateiname oder Anzeigename</translation>
+    </message>
+    <message>
+      <source>No files match this search.</source>
+      <translation>Keine Dateien für diese Suche gefunden.</translation>
+    </message>
+    <message>
       <source>Filename</source>
       <translation>Dateiname</translation>
     </message>
@@ -150,6 +162,46 @@
     <message>
       <source>Failed to resize image</source>
       <translation>Fehlgeschlagen Bild, um die Größe</translation>
+    </message>
+    <message>
+      <source>The following files need your attention before uploading:</source>
+      <translation>Die folgenden Dateien erfordern vor dem Hochladen Ihre Aufmerksamkeit:</translation>
+    </message>
+    <message>
+      <source>Same name as an existing attachment, but different size.</source>
+      <translation>Gleicher Name wie ein vorhandener Anhang, aber unterschiedliche Größe.</translation>
+    </message>
+    <message>
+      <source>Replace</source>
+      <translation>Ersetzen</translation>
+    </message>
+    <message>
+      <source>Keep both</source>
+      <translation>Beide behalten</translation>
+    </message>
+    <message>
+      <source>Same size as an existing attachment, but different name, it could be the same file.</source>
+      <translation>Gleiche Größe wie ein vorhandener Anhang, aber unterschiedlicher Name, es könnte sich um dieselbe Datei handeln.</translation>
+    </message>
+    <message>
+      <source>Upload anyway</source>
+      <translation>Trotzdem hochladen</translation>
+    </message>
+    <message>
+      <source>Don't upload</source>
+      <translation>Nicht hochladen</translation>
+    </message>
+    <message>
+      <source>Same name and size as an existing attachment, it could be the same file.</source>
+      <translation>Gleicher Name und gleiche Größe wie ein vorhandener Anhang, es könnte sich um dieselbe Datei handeln.</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Abbrechen</translation>
+    </message>
+    <message>
+      <source>Confirm</source>
+      <translation>Bestätigen</translation>
     </message>
   </context>
   <context>

@@ -1,18 +1,11 @@
 {default attribute_base=ContentObjectAttribute}
 <table class="table list table-condensed" cellpadding="0" cellspacing="0">
     <thead>
-    <tr>
+    <tr style="display:none;">
         <th colspan="2">
             {'Attached files:'|i18n( 'extension/ocmultibinary' )}
         </th>
-        <th colspan="4">
-            {if $attribute.has_content}
-                <button class="btn btn-danger btn-sm pull-right" type="submit"
-                        name="CustomActionButton[{$attribute.id}_delete_binary]" title="{'Delete all files'|i18n( 'extension/ocmultibinary' )}">
-                    <i class="fa fa-trash"></i> {'Delete all files'|i18n( 'extension/ocmultibinary' )}
-                </button>
-            {/if}
-        </th>
+        <th colspan="4"></th>
     </tr>
     <tr>
         <th colspan="2"></th>
@@ -34,7 +27,7 @@
                     </button>
                 </td>
                 <td style="vertical-align:middle">
-                    {$file.original_filename|wash( xhtml )}&nbsp;<small class="d-block">{$file.filesize|si( byte )}</small>
+                    {$file.original_filename|wash( xhtml )}&nbsp;<small class="d-block mt-1" style="font-family: 'Lora', serif; font-size: 0.75rem;">{$file.filesize|si( byte )} - {$file.upload_date|l10n( shortdatetime )}</small>
                 </td>
                 <td style="vertical-align:middle">
                     <input type="text" value="{$file.display_name|wash}" placeholder="{'Display name'|i18n( 'extension/ocmultibinary' )}" name="{$attribute_base}_display_name_{$attribute.id}[{$file.original_filename|wash( xhtml )}]" class="form-control" data-filename="{$file.original_filename|wash( xhtml )}" />
@@ -52,6 +45,11 @@
 
             </tr>
         {/foreach}
+        <tr class="upload-search-empty" style="display:none;">
+            <td colspan="6">
+                <p class="mb-0">{'No files match this search.'|i18n( 'extension/ocmultibinary' )}</p>
+            </td>
+        </tr>
     {else}
         <tr>
             <td>
@@ -61,4 +59,12 @@
     {/if}
     </tbody>
 </table>
+{if $attribute.has_content}
+    <div class="clearfix mt-2">
+        <button class="btn btn-danger btn-sm upload-delete-all-btn" type="submit"
+                name="CustomActionButton[{$attribute.id}_delete_binary]" title="{'Delete all files'|i18n( 'extension/ocmultibinary' )}">
+            <i class="fa fa-trash"></i> {'Delete all files'|i18n( 'extension/ocmultibinary' )}
+        </button>
+    </div>
+{/if}
 {/default}

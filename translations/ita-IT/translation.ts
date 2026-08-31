@@ -8,6 +8,18 @@
       <translation>Seleziona file</translation>
     </message>
     <message>
+      <source>Search</source>
+      <translation>Cerca</translation>
+    </message>
+    <message>
+      <source>Search by file name or display name</source>
+      <translation>Cerca per nome file o titolo visualizzato</translation>
+    </message>
+    <message>
+      <source>No files match this search.</source>
+      <translation>Nessun file trovato con la ricerca.</translation>
+    </message>
+    <message>
       <source>Filename</source>
       <translation>File name</translation>
     </message>

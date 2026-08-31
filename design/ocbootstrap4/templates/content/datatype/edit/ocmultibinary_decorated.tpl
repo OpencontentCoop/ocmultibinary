@@ -2,6 +2,26 @@
     {def $upload_conflict_check_enabled = ezini('NameConflictSettings', 'EnableUploadConflictCheck', 'ocmultibinary.ini')|eq('enabled')}
     <div id="uploader_{$attribute_base}_data_multibinaryfilename_{$attribute.id}">
 
+        {def $file_count = 0}
+        {if $attribute.has_content}
+            {set $file_count = $attribute.content|count()}
+        {/if}
+        {if or($file_count|lt( $attribute.contentclass_attribute.data_int2 ), $attribute.contentclass_attribute.data_int2|eq(0) )}
+            <div class="clearfix upload-button-container mb-4">
+                <span class="btn btn-success btn-sm fileinput-button">
+                    <i class="fa fa-plus"></i>
+                    <span>{'Add file'|i18n( 'extension/ocmultibinary' )}</span>
+                    <input class="input-upload" multiple type="file" name="OcMultibinaryFiles[]"
+                           data-url="{concat('ocmultibinary/upload/', $attribute.id, '/', $attribute.version, '/', $attribute.language_code  )|ezurl(no)}" />
+
+
+                </span>
+            </div>
+            <div class="clearfix upload-button-spinner mb-4" style="display: none">
+                <a class="btn btn-success btn-sm" href="#"><i class="fa a fa-circle-o-notch fa-spin"></i> {'Add file'|i18n( 'extension/ocmultibinary' )}</a>
+            </div>
+        {/if}
+
         {if $upload_conflict_check_enabled}
         <div id="upload-conflict-anchor-{$attribute.id}" class="upload-conflict-anchor" tabindex="-1">
             <div class="upload-conflict-box alert alert-warning mb-4" style="display:none;" role="alert">
@@ -88,30 +108,15 @@
         </template>
         {/if}
 
+        <div class="clearfix mb-2">
+            <label for="upload-file-search-{$attribute.id}" class="font-weight-bold">{'Search'|i18n( 'extension/ocmultibinary' )}</label>
+            <input type="search" id="upload-file-search-{$attribute.id}" class="form-control form-control-sm upload-file-search"
+                   placeholder="{'Search by file name or display name'|i18n( 'extension/ocmultibinary' )}" />
+        </div>
+
         <div class="clearfix upload-file-list" data-sorturl="{concat('ocmultibinary/sort/', $attribute.id, '/', $attribute.version, '/', $attribute.language_code  )|ezurl(no)}">
             {include uri="design:content/datatype/edit/filelist_decorated.tpl" attribute=$attribute}
         </div>
-
-        {def $file_count = 0}
-        {if $attribute.has_content}
-            {set $file_count = $attribute.content|count()}
-        {/if}
-        {if or($file_count|lt( $attribute.contentclass_attribute.data_int2 ), $attribute.contentclass_attribute.data_int2|eq(0) )}
-            <div class="clearfix upload-button-container">
-                <span class="btn btn-success btn-sm fileinput-button">
-                    <i class="fa fa-plus"></i>
-                    <span>{'Add file'|i18n( 'extension/ocmultibinary' )}</span>
-                    <input class="input-upload" multiple type="file" name="OcMultibinaryFiles[]"
-                           data-url="{concat('ocmultibinary/upload/', $attribute.id, '/', $attribute.version, '/', $attribute.language_code  )|ezurl(no)}" />
-
-
-                </span>
-            </div>
-            <div class="clearfix upload-button-spinner" style="display: none">
-                <a class="btn btn-success btn-sm" href="#"><i class="fa a fa-circle-o-notch fa-spin"></i> {'Add file'|i18n( 'extension/ocmultibinary' )}</a>
-            </div>
-        {/if}
-
 
     </div>
 
