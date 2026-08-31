@@ -14,5 +14,5 @@ ClassAttributeIdentifier[]
 # When enabled, uploading a file whose name matches an attachment already
 # present in the same field shows a confirmation box (replace / keep both)
 # before the upload starts, instead of silently replacing it.
-EnableUploadConflictCheck=disabled
+EnableUploadConflictCheck=enabled
 */ ?>
