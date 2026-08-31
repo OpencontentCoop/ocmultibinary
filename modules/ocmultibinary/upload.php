@@ -85,22 +85,44 @@ if ($fileCount < $maxFileCount || $maxFileCount == 0) {
     ]);
     $data = $uploadHandler->post(false);
 
+    // Per-file "replace existing / keep both" choice made by the editor when a name
+    // conflict was detected client-side before the upload started (see jquery.ocmultibinary.js).
+    // Keyed by the uploaded file name, value is a bool. Missing entries default to "replace"
+    // to preserve the historical behaviour for callers that don't send this (e.g. older cached JS).
+    $replaceChoices = array();
+    if ($http->hasPostVariable('OcMultibinaryReplaceChoice')) {
+        $decodedChoices = json_decode($http->postVariable('OcMultibinaryReplaceChoice'), true);
+        if (is_array($decodedChoices)) {
+            $replaceChoices = $decodedChoices;
+        }
+    }
+
     foreach ($data[$options['param_name']] as $file) {
         if ($file->error) {
             $response['errors'][] = $file->error;
         } else {
             $filePath = $options['upload_dir'] . $file->name;
+            $replaceExisting = array_key_exists($file->name, $replaceChoices)
+                ? (bool)$replaceChoices[$file->name]
+                : true;
             $attribute->dataType()->insertRegularFile(
                 $attribute->attribute('object'),
                 $attribute->attribute('version'),
                 $attribute->attribute('language_code'),
                 $attribute,
                 $filePath,
-                $response
+                $response,
+                $replaceExisting
             );
-            $file = eZClusterFileHandler::instance($filePath);
-            if ($file->exists()) {
-                $file->delete();
+            // The temporary upload file was written directly to the local filesystem
+            // (see OCMultiBinaryUploadHandler::handle_file_upload), never through the
+            // cluster storage layer, so it must be removed with a plain filesystem call:
+            // eZClusterFileHandler::exists()/delete() only check the cluster (e.g. DB-backed
+            // DFS), never the local disk, so they would always report the file as
+            // non-existent here and silently skip the cleanup, leaving it as a permanent
+            // orphan in the shared upload temp directory.
+            if (is_file($filePath)) {
+                unlink($filePath);
             }
         }
     }

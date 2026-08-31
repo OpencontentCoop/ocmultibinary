@@ -64,6 +64,7 @@ class eZMultiBinaryFile extends eZBinaryFile
             ),
             'function_attributes' => array(
                 'filesize' => 'fileSize',
+                'upload_date' => 'uploadDate',
                 'filepath' => 'filePath',
                 'mime_type_category' => 'mimeTypeCategory',
                 'mime_type_part' => 'mimeTypePart',
@@ -191,6 +192,17 @@ class eZMultiBinaryFile extends eZBinaryFile
                     'version' => $version
                 ));
         }
+    }
+
+    function uploadDate()
+    {
+        $fileInfo = $this->storedFileInfo();
+        $file = eZClusterFileHandler::instance($fileInfo['filepath']);
+        if ($file->exists()) {
+            $stat = $file->stat();
+            return $stat['mtime'];
+        }
+        return 0;
     }
 
     /**

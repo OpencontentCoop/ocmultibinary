@@ -405,6 +405,9 @@ class OCMultiBinaryType extends eZDataType
      * @param eZContentObjectAttribute $objectAttribute
      * @param string $filePath
      * @param array $result
+     * @param bool $replaceExisting When true (default), an already attached file with the same
+     *             original filename is deleted and replaced. When false, the new file is kept
+     *             alongside the existing one instead of replacing it.
      *
      * @return bool
      * @throws Exception
@@ -415,7 +418,8 @@ class OCMultiBinaryType extends eZDataType
         $objectLanguage,
         $objectAttribute,
         $filePath,
-        &$result
+        &$result,
+        $replaceExisting = true
     )
     {
         $result = array(
@@ -497,7 +501,7 @@ class OCMultiBinaryType extends eZDataType
 
         foreach ($binaryFiles as $binaryFile) {
             if ($binaryFile instanceof eZMultiBinaryFile) {
-                if ($binaryFile->attribute('original_filename') == $binary->attribute('original_filename')) {
+                if ($replaceExisting && $binaryFile->attribute('original_filename') == $binary->attribute('original_filename')) {
 
                     // delete filedata from database
                     eZMultiBinaryFile::removeByFileName(
