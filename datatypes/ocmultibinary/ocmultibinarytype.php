@@ -43,20 +43,26 @@ class OCMultiBinaryType extends eZDataType
 
         $decorations = self::parseDecorations($contentObjectAttribute);
         if (!empty($decorations)) {
+            // Each decoration is consumed at most once: original_filename alone can't tell two
+            // files apart when a name conflict was resolved with "keep both" (both keep the
+            // same editor-chosen name), so without this a single decoration could get applied
+            // to every file sharing that name instead of just the one it belongs to.
+            $consumedKeys = [];
             foreach ($binaryFiles as $binaryFile) {
                 if ($binaryFile instanceof eZMultiBinaryFile) {
-                    foreach ($decorations as $key => $value) {
-                        $displayName = $value['display_name'];
-                        $group = $value['display_group'];
-                        $text = $value['display_text'];
-                        $order = $value['display_order'];
-                        $originalFileName = $value['original_filename'];
-                        if ($binaryFile->attribute('original_filename') == $originalFileName) {
-                            $binaryFile->setAttribute('display_order', $order);
-                            $binaryFile->setAttribute('display_name', $displayName);
-                            $binaryFile->setAttribute('display_group', $group);
-                            $binaryFile->setAttribute('display_text', $text);
-                        }
+                    $matchedKey = self::findMatchingDecorationKey(
+                        $binaryFile->attribute('filename'),
+                        $binaryFile->attribute('original_filename'),
+                        $decorations,
+                        $consumedKeys
+                    );
+                    if ($matchedKey !== null) {
+                        $value = $decorations[$matchedKey];
+                        $binaryFile->setAttribute('display_order', $value['display_order']);
+                        $binaryFile->setAttribute('display_name', $value['display_name']);
+                        $binaryFile->setAttribute('display_group', $value['display_group']);
+                        $binaryFile->setAttribute('display_text', $value['display_text']);
+                        $consumedKeys[$matchedKey] = true;
                     }
                 }
             }
@@ -259,21 +265,61 @@ class OCMultiBinaryType extends eZDataType
 
         if (!empty($displayNames) || !empty($displayGroups) || !empty($displayOrders) || !empty($displayTexts)){
             $storedDecorations = self::parseDecorations($contentObjectAttribute);
+
+            // The posted arrays are keyed by physical filename (see filelist_decorated.tpl):
+            // the only identifier that stays unique even when "keep both" attaches two files
+            // under the same original_filename. Decorations stored before that field existed
+            // don't carry it: resolve those against the actually attached files, where the
+            // physical filename is always available - safe here because such a decoration can
+            // only ever describe a single file (duplicates weren't possible before "keep both").
+            $needsResolution = [];
+            foreach ($storedDecorations as $index => $storedDecoration) {
+                if (empty($storedDecoration['filename'])) {
+                    $needsResolution[$index] = $storedDecoration['original_filename'];
+                }
+            }
+            if (!empty($needsResolution)) {
+                $binaryFiles = (array)eZMultiBinaryFile::fetch($contentObjectAttribute->attribute('id'), $contentObjectAttribute->attribute('version'));
+                foreach ($binaryFiles as $binaryFile) {
+                    if (!$binaryFile instanceof eZMultiBinaryFile) {
+                        continue;
+                    }
+                    $matchIndex = array_search($binaryFile->attribute('original_filename'), $needsResolution, true);
+                    if ($matchIndex !== false) {
+                        $storedDecorations[$matchIndex]['filename'] = $binaryFile->attribute('filename');
+                        unset($needsResolution[$matchIndex]);
+                    }
+                }
+            }
+
             foreach ($storedDecorations as $index => $storedDecoration){
-                $fileName = $storedDecoration['original_filename'];
-                $buggedPos = strpos($fileName, ']');
-                $fileNameAlt = $buggedPos !== false ? substr($fileName, 0, $buggedPos) : $fileName;
-                if (isset($displayNames[$fileName]) || isset($displayNames[$fileNameAlt])){
-                    $storedDecorations[$index]['display_name'] = $displayNames[$fileName] ?? $displayNames[$fileNameAlt];
+                $fileName = $storedDecoration['filename'] ?? null;
+
+                // Older submissions (a cached page mid-rollout) may still post the array keyed
+                // by original_filename: fall back to it so nothing silently stops saving.
+                $legacyFileName = $storedDecoration['original_filename'];
+                $buggedPos = strpos($legacyFileName, ']');
+                $legacyFileNameAlt = $buggedPos !== false ? substr($legacyFileName, 0, $buggedPos) : $legacyFileName;
+
+                if ($fileName !== null && isset($displayNames[$fileName])){
+                    $storedDecorations[$index]['display_name'] = $displayNames[$fileName];
+                } elseif (isset($displayNames[$legacyFileName]) || isset($displayNames[$legacyFileNameAlt])){
+                    $storedDecorations[$index]['display_name'] = $displayNames[$legacyFileName] ?? $displayNames[$legacyFileNameAlt];
                 }
-                if (isset($displayGroups[$fileName]) || isset($displayGroups[$fileNameAlt])){
-                    $storedDecorations[$index]['display_group'] = $displayGroups[$fileName] ?? $displayGroups[$fileNameAlt];
+                if ($fileName !== null && isset($displayGroups[$fileName])){
+                    $storedDecorations[$index]['display_group'] = $displayGroups[$fileName];
+                } elseif (isset($displayGroups[$legacyFileName]) || isset($displayGroups[$legacyFileNameAlt])){
+                    $storedDecorations[$index]['display_group'] = $displayGroups[$legacyFileName] ?? $displayGroups[$legacyFileNameAlt];
                 }
-                if (isset($displayOrders[$fileName]) || isset($displayOrders[$fileNameAlt])){
-                    $storedDecorations[$index]['display_order'] = $displayOrders[$fileName] ?? $displayOrders[$fileNameAlt];
+                if ($fileName !== null && isset($displayOrders[$fileName])){
+                    $storedDecorations[$index]['display_order'] = $displayOrders[$fileName];
+                } elseif (isset($displayOrders[$legacyFileName]) || isset($displayOrders[$legacyFileNameAlt])){
+                    $storedDecorations[$index]['display_order'] = $displayOrders[$legacyFileName] ?? $displayOrders[$legacyFileNameAlt];
                 }
-                if (isset($displayTexts[$fileName]) || isset($displayTexts[$fileNameAlt])){
-                    $storedDecorations[$index]['display_text'] = $displayTexts[$fileName] ?? $displayTexts[$fileNameAlt];
+                if ($fileName !== null && isset($displayTexts[$fileName])){
+                    $storedDecorations[$index]['display_text'] = $displayTexts[$fileName];
+                } elseif (isset($displayTexts[$legacyFileName]) || isset($displayTexts[$legacyFileNameAlt])){
+                    $storedDecorations[$index]['display_text'] = $displayTexts[$legacyFileName] ?? $displayTexts[$legacyFileNameAlt];
                 }
             }
             self::storeDecorations($contentObjectAttribute, $storedDecorations);
@@ -373,7 +419,7 @@ class OCMultiBinaryType extends eZDataType
                             if ($file->exists() and count($binaryObjectsWithSameFileName) < 1) {
                                 $file->delete();
                             }
-                            self::removeFileFromDecorations($contentObjectAttribute, $binaryFile->attribute('original_filename'));
+                            self::removeFileFromDecorations($contentObjectAttribute, $binaryFile->attribute('filename'), $binaryFile->attribute('original_filename'));
                         }
                     }
                 }
@@ -1164,20 +1210,45 @@ class OCMultiBinaryType extends eZDataType
 
     public static function setFileOrder($contentObjectAttribute, $sortedFiles)
     {
-        $decorations = self::parseDecorations($contentObjectAttribute);
-
-        foreach ($sortedFiles as $index => $file) {
-            $isMissing = true;
-            foreach ($decorations as $key => $decoration) {
-                if ($decoration['original_filename'] == $file) {
-                    $decorations[$key]['display_order'] = $index;
-                    $isMissing = false;
-                }
+        // $sortedFiles is [displayIndex => physicalFilename] (see filelist_decorated.tpl and
+        // jquery.ocmultibinary.js): the physical filename is the only identifier that stays
+        // unique even when "keep both" on a name conflict attaches two files under the same
+        // original_filename.
+        $binaryFiles = (array)eZMultiBinaryFile::fetch($contentObjectAttribute->attribute('id'), $contentObjectAttribute->attribute('version'));
+        $binaryFilesByFilename = [];
+        foreach ($binaryFiles as $binaryFile) {
+            if ($binaryFile instanceof eZMultiBinaryFile) {
+                $binaryFilesByFilename[$binaryFile->attribute('filename')] = $binaryFile;
             }
-            if ($isMissing){
+        }
+
+        $decorations = self::parseDecorations($contentObjectAttribute);
+        $consumedKeys = [];
+
+        foreach ($sortedFiles as $index => $physicalFilename) {
+            $binaryFile = $binaryFilesByFilename[$physicalFilename] ?? null;
+            if ($binaryFile === null) {
+                continue;
+            }
+
+            $matchedKey = self::findMatchingDecorationKey(
+                $physicalFilename,
+                $binaryFile->attribute('original_filename'),
+                $decorations,
+                $consumedKeys
+            );
+
+            if ($matchedKey !== null) {
+                $decorations[$matchedKey]['display_order'] = $index;
+                // Backfill legacy (filename-less) decorations now that we know for certain
+                // which physical file they belong to.
+                $decorations[$matchedKey]['filename'] = $physicalFilename;
+                $consumedKeys[$matchedKey] = true;
+            } else {
                 $decorations[] = [
-                    'original_filename' => $file,
-                    'display_name' => self::cleanFileName($file),
+                    'filename' => $physicalFilename,
+                    'original_filename' => $binaryFile->attribute('original_filename'),
+                    'display_name' => self::cleanFileName($binaryFile->attribute('original_filename')),
                     'display_group' => '',
                     'display_text' => '',
                     'display_order' => $index,
@@ -1222,13 +1293,15 @@ class OCMultiBinaryType extends eZDataType
         return $decorations;
     }
 
-    private static function removeFileFromDecorations($contentObjectAttribute, $filename)
+    private static function removeFileFromDecorations($contentObjectAttribute, $filename, $originalFilename)
     {
         $storedDecorations = self::parseDecorations($contentObjectAttribute);
-        foreach ($storedDecorations as $index => $storedDecoration){
-            if ($storedDecoration['original_filename'] == $filename){
-                unset($storedDecorations[$index]);
-            }
+        // Remove only the one decoration belonging to this exact physical file: matching by
+        // original_filename alone would remove every decoration sharing that name, including
+        // the one still attached to a file kept alongside it via "keep both".
+        $matchedKey = self::findMatchingDecorationKey($filename, $originalFilename, $storedDecorations, []);
+        if ($matchedKey !== null){
+            unset($storedDecorations[$matchedKey]);
         }
         self::storeDecorations($contentObjectAttribute, $storedDecorations);
     }
@@ -1237,23 +1310,86 @@ class OCMultiBinaryType extends eZDataType
     {
         $binaryFiles = (array)eZMultiBinaryFile::fetch($contentObjectAttribute->attribute('id'), $contentObjectAttribute->attribute('version'));
 
-        $decorations = $storedDecorations = self::parseDecorations($contentObjectAttribute);
-        $storedDecorationsFiles = array_column($storedDecorations, 'original_filename');
-        $lastIndex = count($storedDecorationsFiles);
+        $decorations = self::parseDecorations($contentObjectAttribute);
+        $usedDisplayNames = array_column($decorations, 'display_name');
+        $lastIndex = count($decorations);
+
+        $consumedKeys = [];
         foreach ($binaryFiles as $binaryFile){
-            if (!in_array($binaryFile->attribute('original_filename'), $storedDecorationsFiles)){
-                $lastIndex++;
-                $decorations[] = [
-                    'original_filename' => $binaryFile->attribute('original_filename'),
-                    'display_name' => self::cleanFileName($binaryFile->attribute('original_filename')),
-                    'display_group' => '',
-                    'display_text' => '',
-                    'display_order' => $lastIndex,
-                ];
+            $matchedKey = self::findMatchingDecorationKey(
+                $binaryFile->attribute('filename'),
+                $binaryFile->attribute('original_filename'),
+                $decorations,
+                $consumedKeys
+            );
+            if ($matchedKey !== null){
+                $consumedKeys[$matchedKey] = true;
+                continue;
             }
+
+            $lastIndex++;
+            // Two files can share the same original_filename (the "keep both" choice on a
+            // name conflict keeps both binaries instead of replacing one): without
+            // disambiguation they'd also get the exact same auto-generated display_name,
+            // making them indistinguishable in the attachment list.
+            $displayName = self::uniqueDisplayName(
+                self::cleanFileName($binaryFile->attribute('original_filename')),
+                $usedDisplayNames
+            );
+            $usedDisplayNames[] = $displayName;
+            $decorations[] = [
+                'filename' => $binaryFile->attribute('filename'),
+                'original_filename' => $binaryFile->attribute('original_filename'),
+                'display_name' => $displayName,
+                'display_group' => '',
+                'display_text' => '',
+                'display_order' => $lastIndex,
+            ];
         }
 
         self::storeDecorations($contentObjectAttribute, $decorations);
+    }
+
+    private static function uniqueDisplayName($baseName, array $usedNames)
+    {
+        if (!in_array($baseName, $usedNames, true)) {
+            return $baseName;
+        }
+        $i = 2;
+        while (in_array($baseName . ' (' . $i . ')', $usedNames, true)) {
+            $i++;
+        }
+        return $baseName . ' (' . $i . ')';
+    }
+
+    /**
+     * Finds which decoration (by array key) describes a given physical file, matching primarily
+     * by "filename" - the server-generated name, effectively unique per upload - and falling
+     * back to "original_filename" only for decorations stored before the "filename" field
+     * existed. original_filename alone is NOT a reliable identity: it's the editor-visible name,
+     * which "keep both" on a name conflict intentionally duplicates across two different files.
+     *
+     * A decoration whose key is already in $consumedKeys is skipped, so two files that
+     * legitimately share the same original_filename don't both resolve to the same single
+     * (legacy, filename-less) decoration.
+     *
+     * @return int|string|null the matched key in $decorations, or null if none matched
+     */
+    private static function findMatchingDecorationKey($filename, $originalFilename, array $decorations, array $consumedKeys)
+    {
+        foreach ($decorations as $key => $decoration) {
+            if (isset($consumedKeys[$key])) {
+                continue;
+            }
+            if (!empty($decoration['filename'])) {
+                if ($decoration['filename'] === $filename) {
+                    return $key;
+                }
+            } elseif ($decoration['original_filename'] == $originalFilename) {
+                return $key;
+            }
+        }
+        return null;
     }
 
     private static function storeDecorations($contentObjectAttribute, $data)
@@ -1264,6 +1400,10 @@ class OCMultiBinaryType extends eZDataType
 
     private static function cleanFileName($filename)
     {
+        // original_filename is stored with PHP's urlencode() (see cleanOriginalFileName()),
+        // which encodes spaces as "+" and special characters as "%XX": decode it back to a
+        // human-readable string before deriving a display name from it.
+        $filename = urldecode($filename);
         $parts = explode('.', $filename);
         if (count($parts) > 1) {
             $extension = array_pop($parts);
