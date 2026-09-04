@@ -28,6 +28,10 @@
       <translation>Stato</translation>
     </message>
     <message>
+      <source>File name</source>
+      <translation>Nome file</translation>
+    </message>
+    <message>
       <source>Display name</source>
       <translation>Titolo visualizzato</translation>
     </message>

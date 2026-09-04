@@ -16,6 +16,10 @@
       <translation>Status</translation>
     </message>
     <message>
+      <source>File name</source>
+      <translation>File name</translation>
+    </message>
+    <message>
       <source>Display name</source>
       <translation>Displayed title</translation>
     </message>

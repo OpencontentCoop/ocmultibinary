@@ -1,12 +1,12 @@
 {default attribute_base=ContentObjectAttribute}
 <table class="table list table-condensed" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
     <colgroup>
-        <col style="width: 7%;">
+        <col style="width: 4%;">
         <col style="width: 32%;">
         <col style="width: 23%;">
         <col style="width: 17%;">
         <col style="width: 17%;">
-        <col style="width: 4%;">
+        <col style="width: 7%;">
     </colgroup>
     <thead>
     <tr style="display:none;">
@@ -16,7 +16,8 @@
         <th colspan="4"></th>
     </tr>
     <tr>
-        <th colspan="2"></th>
+        <th></th>
+        <th style="padding-left: 12px;">{'File name'|i18n( 'extension/ocmultibinary' )}</th>
         <th>{'Display name'|i18n( 'extension/ocmultibinary' )}</th>
         <th style="padding-left: 12px;">{'Display group'|i18n( 'extension/ocmultibinary' )}</th>
         <th style="padding-left: 12px;">{'Text'|i18n( 'extension/ocmultibinary' )}</th>
@@ -28,14 +29,11 @@
         {foreach $attribute.content as $key => $file}
             <tr>
                 <td style="vertical-align:middle">
-                    <button class="ocmultibutton btn btn-danger btn-xs" type="submit"
-                            name="CustomActionButton[{$attribute.id}_delete_multibinary][{$file.filename}]"
-                            title="{'Remove this file'|i18n( 'extension/ocmultibinary' )}">
-                        <i class="fa fa-trash"></i>
-                    </button>
+                    <input type="hidden" value="{$file.display_order|wash}" name="{$attribute_base}_sort_{$attribute.id}[{$file.filename}]" class="sort" data-filename="{$file.filename}" data-original-filename="{$file.original_filename|wash( xhtml )}" data-filesize="{$file.filesize}" />
+                    <i class="fa fa-bars sort-handle" style="cursor: grab;"></i>
                 </td>
                 <td style="vertical-align:middle; overflow-wrap: anywhere; padding-left: 12px;">
-                    {$file.original_filename|wash( xhtml )}&nbsp;<small class="d-block mt-1" style="font-family: 'Lora', serif; font-size: 0.75rem;">{$file.filesize|si( byte )} - {$file.upload_date|l10n( shortdatetime )}</small>
+                    <a href={concat( 'ocmultibinary/download/', $attribute.contentobject_id, '/', $attribute.id, '/', $attribute.version, '/', $file.filename, '/file/', $file.original_filename|urlencode )|ezurl} target="_blank" rel="noopener">{$file.original_filename|wash( xhtml )}</a><small class="d-block mt-1" style="font-family: 'Lora', serif; font-size: 0.75rem;">{$file.filesize|si( byte )} - {$file.upload_date|l10n( shortdatetime )}</small>
                 </td>
                 <td style="vertical-align:middle">
                     <input type="text" value="{$file.display_name|wash}" placeholder="{'Display name'|i18n( 'extension/ocmultibinary' )}" name="{$attribute_base}_display_name_{$attribute.id}[{$file.filename}]" class="form-control form-control-sm" data-filename="{$file.filename}" />
@@ -47,8 +45,11 @@
                     <textarea placeholder="{'Text'|i18n( 'extension/ocmultibinary' )}" name="{$attribute_base}_display_text_{$attribute.id}[{$file.filename}]" class="form-control form-control-sm">{$file.display_text|wash}</textarea>
                 </td>
                 <td style="vertical-align:middle">
-                    <input type="hidden" value="{$file.display_order|wash}" name="{$attribute_base}_sort_{$attribute.id}[{$file.filename}]" class="sort" data-filename="{$file.filename}" data-original-filename="{$file.original_filename|wash( xhtml )}" data-filesize="{$file.filesize}" />
-                    <i class="fa fa-arrows pull-right" style="cursor: grab;"></i>
+                    <button class="ocmultibutton btn btn-danger btn-xs" type="submit"
+                            name="CustomActionButton[{$attribute.id}_delete_multibinary][{$file.filename}]"
+                            title="{'Remove this file'|i18n( 'extension/ocmultibinary' )}">
+                        <i class="fa fa-trash"></i>
+                    </button>
                 </td>
 
             </tr>
@@ -68,7 +69,7 @@
     </tbody>
 </table>
 {if $attribute.has_content}
-    <div class="clearfix mt-2">
+    <div class="clearfix mt-2 text-right">
         <button class="btn btn-danger btn-sm upload-delete-all-btn" type="submit"
                 name="CustomActionButton[{$attribute.id}_delete_binary]" title="{'Delete all files'|i18n( 'extension/ocmultibinary' )}">
             <i class="fa fa-trash"></i> {'Delete all files'|i18n( 'extension/ocmultibinary' )}
