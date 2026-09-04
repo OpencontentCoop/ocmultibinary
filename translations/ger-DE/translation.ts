@@ -28,6 +28,10 @@
       <translation>Status</translation>
     </message>
     <message>
+      <source>File name</source>
+      <translation>Dateiname</translation>
+    </message>
+    <message>
       <source>Display name</source>
       <translation>Anzeigename</translation>
     </message>
