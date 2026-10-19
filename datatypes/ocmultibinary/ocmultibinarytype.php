@@ -6,6 +6,12 @@ class OCMultiBinaryType extends eZDataType
     const MAX_NUMBER_OF_FILES_FIELD = 'data_int2';
     const ALLOW_DECORATIONS_FIELD = 'data_int3';
 
+    /**
+     * Valore da passare a fromString() per svuotare esplicitamente il campo: la stringa vuota non e'
+     * adatta perche' significa "non modificare" (es. traduzioni aggiunte da PublicationProcess)
+     */
+    const CLEAR_ALL_FILES = '__clear_all_files__';
+
     const MAX_FILESIZE_VARIABLE = '_ocmultibinary_max_filesize_';
     const MAX_NUMBER_OF_FILES_VARIABLE = '_ocmultibinary_max_number_of_files_';
     const ALLOW_DECORATIONS_VARIABLE = '_ocmultibinary_allow_decoration_';
@@ -1099,6 +1105,10 @@ class OCMultiBinaryType extends eZDataType
     function fromString($objectAttribute, $string)
     {
         $version = $objectAttribute->attribute('version');
+        if ($string === self::CLEAR_ALL_FILES) {
+            $this->deleteStoredObjectAttribute($objectAttribute, $version);
+            return true;
+        }
         $filePaths = !empty($string) ? explode('|', $string) : [];
         if (empty($filePaths)) {
             return true;

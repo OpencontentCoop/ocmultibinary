@@ -58,6 +58,11 @@ class OCMultiBinaryOpendataConverter extends File
 
     public function set($data, PublicationProcess $process)
     {
+        // un elenco vuoto esplicito significa "elimina tutti i file"
+        if (is_array($data) && count($data) === 0) {
+            return OCMultiBinaryType::CLEAR_ALL_FILES;
+        }
+
         $values = array();
         foreach ($data as $item) {
             if (isset($item['stored'])) {
