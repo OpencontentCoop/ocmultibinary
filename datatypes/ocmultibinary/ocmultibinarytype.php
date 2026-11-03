@@ -703,20 +703,75 @@ class OCMultiBinaryType extends eZDataType
      */
     static function storedSingleFileInformation($objectAttribute, $id)
     {
-        $binaryFile = eZPersistentObject::fetchObject(eZMultiBinaryFile::definition(),
-            null,
-            array(
-                'contentobject_attribute_id' => $objectAttribute->attribute('id'),
-                'version' => $objectAttribute->attribute('version'),
-                'filename' => $id,
-            )
-        );
+        $binaryFile = self::fetchStoredFile($objectAttribute, $id);
 
         if ($binaryFile instanceof eZMultiBinaryFile) {
             return $binaryFile->storedFileInfo();
         }
 
         return false;
+    }
+
+    /**
+     * Finds the file by its stored name. The templates build the download url without url-encoding the
+     * stored name: when it contains "?" (e.g. files imported from a Google Drive link, named
+     * "<hash>.uc?id=...&export=download") the web server splits the url there and only "<hash>.uc" reaches
+     * the module, so the exact lookup fails: in that case the stored name is resolved by matchStoredFileName().
+     *
+     * @param eZContentObjectAttribute $objectAttribute
+     * @param string $id
+     *
+     * @return eZMultiBinaryFile|null
+     */
+    private static function fetchStoredFile($objectAttribute, $id)
+    {
+        $conds = array(
+            'contentobject_attribute_id' => $objectAttribute->attribute('id'),
+            'version' => $objectAttribute->attribute('version'),
+            'filename' => $id,
+        );
+        $binaryFile = eZPersistentObject::fetchObject(eZMultiBinaryFile::definition(), null, $conds);
+        if ($binaryFile instanceof eZMultiBinaryFile || !is_string($id) || $id === '') {
+            return $binaryFile;
+        }
+
+        $storedNames = array();
+        $binaryFiles = eZMultiBinaryFile::fetch($objectAttribute->attribute('id'), $objectAttribute->attribute('version'));
+        foreach ((array)$binaryFiles as $storedFile) {
+            if ($storedFile instanceof eZMultiBinaryFile) {
+                $storedNames[] = $storedFile->attribute('filename');
+            }
+        }
+        $resolved = self::matchStoredFileName($storedNames, $id);
+        if ($resolved === $id) {
+            return $binaryFile;
+        }
+        $conds['filename'] = $resolved;
+
+        return eZPersistentObject::fetchObject(eZMultiBinaryFile::definition(), null, $conds);
+    }
+
+    /**
+     * @param array $storedNames the stored file names of the attribute version
+     * @param string|null $id the name requested by the download url
+     *
+     * @return string|null the exact stored name, or the only stored name that starts with "$id?";
+     *                     $id unchanged if there is no match or it is ambiguous
+     */
+    public static function matchStoredFileName(array $storedNames, $id)
+    {
+        if (!is_string($id) || $id === '' || in_array($id, $storedNames, true)) {
+            return $id;
+        }
+
+        $matches = array();
+        foreach ($storedNames as $storedName) {
+            if (is_string($storedName) && strpos($storedName, $id . '?') === 0) {
+                $matches[] = $storedName;
+            }
+        }
+
+        return count($matches) === 1 ? $matches[0] : $id;
     }
 
     /**
@@ -730,21 +785,14 @@ class OCMultiBinaryType extends eZDataType
         $filename
     )
     {
-        $binaryFile = eZPersistentObject::fetchObject(eZMultiBinaryFile::definition(),
-            null,
-            array(
-                'contentobject_attribute_id' => $objectAttribute->attribute('id'),
-                'version' => $objectAttribute->attribute('version'),
-                'filename' => $filename,
-            )
-        );
+        $binaryFile = self::fetchStoredFile($objectAttribute, $filename);
 
         $contentObjectAttributeID = $objectAttribute->attribute('id');
         $version = $objectAttribute->attribute('version');
 
         if ($binaryFile instanceof eZMultiBinaryFile) {
             $db = eZDB::instance();
-            $filename = eZDB::instance()->escapeString($filename);
+            $filename = eZDB::instance()->escapeString($binaryFile->attribute('filename'));
             $db->query("UPDATE ezbinaryfile
                          SET download_count = ( download_count+1 )
                          WHERE contentobject_attribute_id = '{$contentObjectAttributeID}'
