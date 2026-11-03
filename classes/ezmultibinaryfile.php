@@ -210,7 +210,7 @@ class eZMultiBinaryFile extends eZBinaryFile
      */
     public function getDisplayName()
     {
-        return $this->displayName;
+        return OCMultiBinaryType::decodeDisplayName($this->displayName);
     }
 
     /**
