@@ -451,6 +451,105 @@ class OCMultiBinaryType extends eZDataType
     }
 
     /**
+     * original_filename è salvato con un solo livello di urlencode() (spazio -> "+", "+" -> "%2B",
+     * "°" -> "%C2%B0"). Un import massivo lo ha ri-codificato più volte: ogni livello in più
+     * trasforma "%" in "%25". Un carattere codificato a livello k compare come "%" + "25" x (k-2) + XX
+     * (k >= 2); lo spazio parte da "+" e quindi è "%2B" a livello 2, "%252B" a livello 3, ...
+     *
+     * Stima il numero di livelli di codifica L della stringa (1 = forma corretta).
+     * - Un carattere con codice diverso da 2B dà L esatto: ripetizioni di "25" + 1.
+     * - Con soli "%2B" non si distingue uno spazio da un "+": se compaiono due profondità
+     *   consecutive la più profonda è un "+" (lo spazio ha una ripetizione in meno), altrimenti si
+     *   assume che sia uno spazio, il caso di gran lunga più comune nei nomi di file.
+     * - Senza nessuna sequenza "%25..." non c'è prova di corruzione: L = 1 (un "%2B" isolato
+     *   è un "+" letterale a un livello oppure uno spazio a due, e non si può sapere quale).
+     *
+     * @param string $stored
+     * @return int
+     */
+    public static function estimateEncodingLevels($stored)
+    {
+        if (!preg_match_all('/%((?:25)*)([0-9A-Fa-f]{2})/', (string)$stored, $matches, PREG_SET_ORDER)) {
+            return 1;
+        }
+
+        $levels = 1;
+        $plusRepeats = [];
+        foreach ($matches as $match) {
+            $repeats = (int)(strlen($match[1]) / 2);
+            if (strtoupper($match[2]) === '2B') {
+                $plusRepeats[$repeats] = true;
+            } else {
+                $levels = max($levels, $repeats + 1);
+            }
+        }
+
+        if ($levels > 1 || empty($plusRepeats)) {
+            return $levels;
+        }
+
+        $deepest = max(array_keys($plusRepeats));
+        if ($deepest === 0) {
+            return 1;
+        }
+        if (isset($plusRepeats[$deepest - 1])) {
+            return $deepest + 1;
+        }
+
+        return $deepest + 2;
+    }
+
+    /**
+     * Riporta un nome ri-codificato più volte al singolo livello di urlencode(). Un valore già
+     * corretto, o senza prove di corruzione, non viene toccato: è idempotente.
+     *
+     * @param string $stored
+     * @return string
+     */
+    public static function normalizeOriginalFilename($stored)
+    {
+        $name = (string)$stored;
+        $levels = self::estimateEncodingLevels($name);
+        for ($i = 1; $i < $levels; $i++) {
+            $name = urldecode($name);
+        }
+
+        return $name;
+    }
+
+    /**
+     * True se il testo contiene sequenze percent-encoded: un display_name sano, ricavato da
+     * cleanFileName() con urldecode(), non ne contiene.
+     *
+     * @param string $text
+     * @return bool
+     */
+    public static function looksEncoded($text)
+    {
+        return (bool)preg_match('/%[0-9A-Fa-f]{2}/', (string)$text);
+    }
+
+    /**
+     * display_name salvati ancora percent-encoded (nome ri-codificato dall'import, oppure ricavato
+     * da un original_filename senza urldecode) vengono restituiti in chiaro, con "+" trasformato
+     * in spazio come fa cleanFileName() per i nomi nuovi. Un display_name già leggibile passa
+     * invariato.
+     *
+     * @param mixed $displayName
+     * @return mixed
+     */
+    public static function decodeDisplayName($displayName)
+    {
+        if (!is_string($displayName) || !self::looksEncoded($displayName)) {
+            return $displayName;
+        }
+
+        $decoded = str_replace('+', ' ', urldecode(self::normalizeOriginalFilename($displayName)));
+
+        return trim(preg_replace('/\s{2,}/', ' ', $decoded));
+    }
+
+    /**
      * @param eZContentObject $object
      * @param int $objectVersion
      * @param string $objectLanguage
