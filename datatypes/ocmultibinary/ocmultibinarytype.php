@@ -163,49 +163,45 @@ class OCMultiBinaryType extends eZDataType
      */
     function deleteStoredObjectAttribute($contentObjectAttribute, $version = null)
     {
-        $sys = eZSys::instance();
-        $storageDirectory = $sys->storageDirectory();
-
         if ($version == null) {
-            $binaryFiles = $this->getBinaryFiles($contentObjectAttribute);
-            eZMultiBinaryFile::removeByID($contentObjectAttribute->attribute('id'), null);
+            $version = null; // tutte le versioni
+        }
 
-            foreach ($binaryFiles as $binaryFile) {
-                if ($binaryFile instanceof eZMultiBinaryFile) {
-                    $mimeType = $binaryFile->attribute("mime_type");
-                    [$prefix, $suffix] = explode('/', $mimeType);
-                    unset($suffix);
-                    $originalDirectory = $storageDirectory . '/original/' . $prefix;
-                    $fileName = $binaryFile->attribute("filename");
-                    $binaryObjectsWithSameFileName = eZMultiBinaryFile::fetchByFileName($fileName);
-                    $filePath = $originalDirectory . "/" . $fileName;
-                    $file = eZClusterFileHandler::instance($filePath);
+        $binaryFiles = $this->getBinaryFiles($contentObjectAttribute, $version);
 
-                    if ($file->exists() and count($binaryObjectsWithSameFileName) < 1) {
-                        $file->delete();
-                    }
+        // Le righe vanno tolte PRIMA di contare i riferimenti rimasti allo stesso file: se si contasse
+        // prima, la riga che sta per essere rimossa farebbe sempre risultare il file "ancora in uso"
+        // e il file fisico non verrebbe mai cancellato (restando orfano nel cluster).
+        eZMultiBinaryFile::removeByID($contentObjectAttribute->attribute('id'), $version);
+
+        $this->deleteUnreferencedStoredFiles($binaryFiles);
+    }
+
+    /**
+     * Cancella dal cluster i file che non sono piu' referenziati da nessuna riga di ezbinaryfile
+     * (nessun'altra versione, attributo o oggetto). Va chiamato dopo aver rimosso le righe.
+     *
+     * @param eZMultiBinaryFile[] $binaryFiles
+     */
+    private function deleteUnreferencedStoredFiles($binaryFiles)
+    {
+        $storageDirectory = eZSys::instance()->storageDirectory();
+
+        foreach ($binaryFiles as $binaryFile) {
+            if ($binaryFile instanceof eZMultiBinaryFile) {
+                $mimeType = $binaryFile->attribute("mime_type");
+                [$prefix, $suffix] = explode('/', $mimeType);
+                unset($suffix);
+                $originalDirectory = $storageDirectory . '/original/' . $prefix;
+                $fileName = $binaryFile->attribute("filename");
+                $binaryObjectsWithSameFileName = eZMultiBinaryFile::fetchByFileName($fileName);
+                $filePath = $originalDirectory . "/" . $fileName;
+                $file = eZClusterFileHandler::instance($filePath);
+
+                if ($file->exists() and count($binaryObjectsWithSameFileName) < 1) {
+                    $file->delete();
                 }
             }
-        } else {
-            $binaryFiles = $this->getBinaryFiles($contentObjectAttribute, $version);
-            foreach ($binaryFiles as $binaryFile) {
-                if ($binaryFile instanceof eZMultiBinaryFile) {
-                    // delete filedata from dfs
-                    $mimeType = $binaryFile->attribute("mime_type");
-                    [$prefix, $suffix] = explode('/', $mimeType);
-                    unset($suffix);
-                    $originalDirectory = $storageDirectory . '/original/' . $prefix;
-                    $fileName = $binaryFile->attribute("filename");
-                    $binaryObjectsWithSameFileName = eZMultiBinaryFile::fetchByFileName($fileName);
-                    $filePath = $originalDirectory . "/" . $fileName;
-                    $file = eZClusterFileHandler::instance($filePath);
-
-                    if ($file->exists() and count($binaryObjectsWithSameFileName) < 1) {
-                        $file->delete();
-                    }
-                }
-            }
-            eZMultiBinaryFile::removeByID($contentObjectAttribute->attribute('id'), $version);
         }
     }
 
