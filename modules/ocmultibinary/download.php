@@ -107,6 +107,7 @@ if ( class_exists( 'Opencontent\FosHttpCache\ResponseTagger' ) && !headers_sent(
         if ( $nodeAssignment instanceof eZContentObjectTreeNode )
         {
             $cacheTags[] = 'node-' . $nodeAssignment->attribute( 'node_id' );
+            $cacheTags[] = 'node-' . $nodeAssignment->attribute( 'parent_node_id' );
         }
     }
     $cacheTagger = Opencontent\FosHttpCache\ResponseTagger::instance();
