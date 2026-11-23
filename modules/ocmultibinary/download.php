@@ -95,6 +95,26 @@ if ( $version != $currentVersion )
 }
 
 
+// Tag per la cache HTTP (Varnish, via ocfoshttpcache): senza questo header la risposta del download
+// non e' invalidabile (response/output non viene eseguito perche' il passthrough termina con cleanExit),
+// e un file rimosso da un contenuto resta servito dalla cache. Gli stessi tag node-<id> delle pagine
+// vengono invalidati alla pubblicazione/rimozione dell'oggetto.
+if ( class_exists( 'Opencontent\FosHttpCache\ResponseTagger' ) && !headers_sent() )
+{
+    $cacheTags = array( 'object-' . $contentObjectID );
+    foreach ( $nodeAssignments as $nodeAssignment )
+    {
+        if ( $nodeAssignment instanceof eZContentObjectTreeNode )
+        {
+            $cacheTags[] = 'node-' . $nodeAssignment->attribute( 'node_id' );
+            $cacheTags[] = 'node-' . $nodeAssignment->attribute( 'parent_node_id' );
+        }
+    }
+    $cacheTagger = Opencontent\FosHttpCache\ResponseTagger::instance();
+    $cacheTagger->addTags( $cacheTags );
+    header( sprintf( '%s: %s', $cacheTagger->getTagsHeaderName(), $cacheTagger->getTagsHeaderValue() ) );
+}
+
 $fileinfo = OCMultiBinaryType::storedSingleFileInformation( $contentObjectAttribute, $Params['File'] );
 OCMultiBinaryType::handleSingleDownload( $contentObjectAttribute, $Params['File'] );
 
