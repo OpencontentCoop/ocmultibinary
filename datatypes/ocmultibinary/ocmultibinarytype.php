@@ -149,6 +149,14 @@ class OCMultiBinaryType extends eZDataType
 
                         // rename the file, and update the database data
                         $file->move($newFilePath);
+                        // La chiave primaria di ezbinaryfile include filename: store() con un nome diverso
+                        // inserirebbe una seconda riga, lasciando quella col nome vecchio che punta a un file
+                        // ormai spostato. Si toglie quindi prima la riga vecchia e si salva quella col nome nuovo.
+                        eZMultiBinaryFile::removeByFileName(
+                            $fileName,
+                            $binaryFile->attribute('contentobject_attribute_id'),
+                            $binaryFile->attribute('version')
+                        );
                         $binaryFile->setAttribute('filename', $newFileName);
                         $binaryFile->store();
                     }
