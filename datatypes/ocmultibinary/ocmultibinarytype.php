@@ -163,50 +163,98 @@ class OCMultiBinaryType extends eZDataType
      */
     function deleteStoredObjectAttribute($contentObjectAttribute, $version = null)
     {
-        $sys = eZSys::instance();
-        $storageDirectory = $sys->storageDirectory();
-
         if ($version == null) {
-            $binaryFiles = $this->getBinaryFiles($contentObjectAttribute);
-            eZMultiBinaryFile::removeByID($contentObjectAttribute->attribute('id'), null);
-
-            foreach ($binaryFiles as $binaryFile) {
-                if ($binaryFile instanceof eZMultiBinaryFile) {
-                    $mimeType = $binaryFile->attribute("mime_type");
-                    [$prefix, $suffix] = explode('/', $mimeType);
-                    unset($suffix);
-                    $originalDirectory = $storageDirectory . '/original/' . $prefix;
-                    $fileName = $binaryFile->attribute("filename");
-                    $binaryObjectsWithSameFileName = eZMultiBinaryFile::fetchByFileName($fileName);
-                    $filePath = $originalDirectory . "/" . $fileName;
-                    $file = eZClusterFileHandler::instance($filePath);
-
-                    if ($file->exists() and count($binaryObjectsWithSameFileName) < 1) {
-                        $file->delete();
-                    }
-                }
-            }
-        } else {
-            $binaryFiles = $this->getBinaryFiles($contentObjectAttribute, $version);
-            foreach ($binaryFiles as $binaryFile) {
-                if ($binaryFile instanceof eZMultiBinaryFile) {
-                    // delete filedata from dfs
-                    $mimeType = $binaryFile->attribute("mime_type");
-                    [$prefix, $suffix] = explode('/', $mimeType);
-                    unset($suffix);
-                    $originalDirectory = $storageDirectory . '/original/' . $prefix;
-                    $fileName = $binaryFile->attribute("filename");
-                    $binaryObjectsWithSameFileName = eZMultiBinaryFile::fetchByFileName($fileName);
-                    $filePath = $originalDirectory . "/" . $fileName;
-                    $file = eZClusterFileHandler::instance($filePath);
-
-                    if ($file->exists() and count($binaryObjectsWithSameFileName) < 1) {
-                        $file->delete();
-                    }
-                }
-            }
-            eZMultiBinaryFile::removeByID($contentObjectAttribute->attribute('id'), $version);
+            $version = null; // tutte le versioni
         }
+
+        $binaryFiles = $this->getBinaryFiles($contentObjectAttribute, $version);
+
+        // Le righe vanno tolte PRIMA di contare i riferimenti rimasti allo stesso file: se si contasse
+        // prima, la riga che sta per essere rimossa farebbe sempre risultare il file "ancora in uso"
+        // e il file fisico non verrebbe mai cancellato (restando orfano nel cluster).
+        eZMultiBinaryFile::removeByID($contentObjectAttribute->attribute('id'), $version);
+
+        $this->deleteUnreferencedStoredFiles($binaryFiles);
+    }
+
+    /**
+     * Cancella dal cluster i file che non sono piu' referenziati da nessuna riga di ezbinaryfile
+     * (nessun'altra versione, attributo o oggetto). Va chiamato dopo aver rimosso le righe.
+     *
+     * @param eZMultiBinaryFile[] $binaryFiles
+     */
+    private function deleteUnreferencedStoredFiles($binaryFiles)
+    {
+        $storageDirectory = eZSys::instance()->storageDirectory();
+
+        // Interruttore: con StorageSettings/DeleteUnreferencedFiles=disabled (ocmultibinary.ini, o variabile d'ambiente
+        // EZINI_ocmultibinary__StorageSettings__DeleteUnreferencedFiles=disabled) i file non vengono toccati ma
+        // l'operazione viene comunque scritta nel log come "skipped", utile anche come prova a secco.
+        $ini = eZINI::instance('ocmultibinary.ini');
+        $deleteEnabled = !$ini->hasVariable('StorageSettings', 'DeleteUnreferencedFiles')
+            || $ini->variable('StorageSettings', 'DeleteUnreferencedFiles') !== 'disabled';
+
+        foreach ($binaryFiles as $binaryFile) {
+            if ($binaryFile instanceof eZMultiBinaryFile) {
+                $mimeType = (string)$binaryFile->attribute("mime_type");
+                $fileName = (string)$binaryFile->attribute("filename");
+
+                // Difesa su righe corrotte: senza un nome file semplice e un mime_type "tipo/sottotipo" non si puo'
+                // ricostruire con certezza il path nello storage, quindi non si cancella nulla.
+                $prefix = strstr($mimeType, '/', true);
+                if ($prefix === false
+                    || !preg_match('/^[A-Za-z0-9][A-Za-z0-9.+_-]*$/', $prefix)
+                    || $fileName === ''
+                    || $fileName === '.'
+                    || $fileName === '..'
+                    || strpbrk($fileName, '/\\') !== false) {
+                    self::logFileDeletion(
+                        'skipped (invalid row)',
+                        $binaryFile,
+                        $mimeType . ' ' . $fileName
+                    );
+                    continue;
+                }
+
+                $originalDirectory = $storageDirectory . '/original/' . $prefix;
+                $binaryObjectsWithSameFileName = eZMultiBinaryFile::fetchByFileName($fileName);
+                $filePath = $originalDirectory . "/" . $fileName;
+                $file = eZClusterFileHandler::instance($filePath);
+
+                if ($file->exists() and count($binaryObjectsWithSameFileName) < 1) {
+                    if ($deleteEnabled) {
+                        $file->delete();
+                        self::logFileDeletion('deleted', $binaryFile, $filePath);
+                    } else {
+                        self::logFileDeletion('skipped (DeleteUnreferencedFiles=disabled)', $binaryFile, $filePath);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Traccia in var/<instance>/log/ocmultibinary-delete.log ogni file cancellato (o saltato) dal cluster.
+     *
+     * @param string $outcome
+     * @param eZMultiBinaryFile $binaryFile
+     * @param string $path
+     */
+    private static function logFileDeletion($outcome, $binaryFile, $path)
+    {
+        $ini = eZINI::instance();
+        eZLog::write(
+            sprintf(
+                '%s %s | attribute %d version %d | original "%s"',
+                $outcome,
+                $path,
+                $binaryFile->attribute('contentobject_attribute_id'),
+                $binaryFile->attribute('version'),
+                $binaryFile->attribute('original_filename')
+            ),
+            'ocmultibinary-delete.log',
+            $ini->variable('FileSettings', 'VarDir') . '/' . $ini->variable('FileSettings', 'LogDir')
+        );
     }
 
     static function checkFileUploads()
